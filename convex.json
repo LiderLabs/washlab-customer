@@ -1,0 +1,7 @@
+{
+  "project": "your-convex-project-name",
+  "team": "your-team-name",
+  "prodUrl": "https://your-convex-deployment.convex.cloud",
+  "functions": "../washlab-backend/convex/"
+}
+

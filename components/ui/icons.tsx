@@ -1,0 +1,8 @@
+import { Loader2 } from "lucide-react"
+
+export const Icons = {
+    spinner: ({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
+        <Loader2 className={className} {...props} />
+    ),
+}
+
