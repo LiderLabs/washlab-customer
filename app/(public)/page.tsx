@@ -89,7 +89,7 @@ export default function Home() {
               </p>
               
               <p className="text-sm md:text-base text-muted-foreground mb-6 md:mb-8">
-                Drop your clothes. Pay instantly. Get notified when it's ready.
+                Drop your clothes. Pay instantly. Get notified when it&apos;s ready.
               </p>
               
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center lg:justify-start">
@@ -321,7 +321,7 @@ export default function Home() {
               Ready to wash smarter?
             </h2>
             <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-8 sm:mb-10">
-              Join thousands of students who've made the switch to WashLab.
+              Join thousands of students who&apos;ve made the switch to WashLab.
             </p>
             <Link href="/order">
               <Button 
