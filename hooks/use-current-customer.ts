@@ -19,13 +19,29 @@ export function useCurrentCustomer() {
         api.customers.getProfile,
         clerkUser && isConvexAuthenticated && !isConvexAuthLoading ? {} : "skip"
     )
-    
-    // Check if user needs to complete profile
+
+    // Check if user is admin/attendant (should be blocked from customer app)
+    const isAdminOrAttendant = useQuery(
+        api.customers.checkIsAdminOrAttendant,
+        clerkUser && isConvexAuthenticated && !isConvexAuthLoading ? {} : "skip"
+    )
+
+    // Check if user needs to complete profile (only if not admin/attendant)
     const needsProfileCompletion = clerkUser && 
         isConvexAuthenticated && 
         !isConvexAuthLoading && 
         convexUser === null && 
-        pathname !== '/dashboard/complete-profile'
+        !isAdminOrAttendant &&
+        pathname !== '/dashboard/complete-profile' &&
+        pathname !== '/unauthorized'
+
+    // Redirect to unauthorized page if user is admin/attendant
+    useEffect(() => {
+        if (!isClerkLoaded || isConvexAuthLoading) return
+        if (isAdminOrAttendant === true && pathname !== '/unauthorized') {
+            router.push('/unauthorized')
+        }
+    }, [isAdminOrAttendant, pathname, router, isClerkLoaded, isConvexAuthLoading])
 
     // Redirect to complete profile if needed
     useEffect(() => {
@@ -55,7 +71,10 @@ export function useCurrentCustomer() {
     }, [clerkUser, isClerkLoaded, isConvexAuthenticated, isConvexAuthLoading, convexUser, needsProfileCompletion])
 
     // Loading states
-    const isLoading = !isClerkLoaded || isConvexAuthLoading || (clerkUser && isConvexAuthenticated && convexUser === undefined)
+    const isLoading = !isClerkLoaded || 
+        isConvexAuthLoading || 
+        (clerkUser && isConvexAuthenticated && convexUser === undefined) ||
+        (clerkUser && isConvexAuthenticated && isAdminOrAttendant === undefined)
     
     // User status checks (only valid when convexUser exists)
     const isActive = convexUser?.status === "active"
@@ -74,6 +93,7 @@ export function useCurrentCustomer() {
         isRestricted,
         customerId,
         isAuthenticated: !!clerkUser && !!convexUser,
+        isAdminOrAttendant: isAdminOrAttendant === true,
         canPlaceOrders: isActive && !isBlocked && !isSuspended,
         needsProfileCompletion: needsProfileCompletion || false
     }
