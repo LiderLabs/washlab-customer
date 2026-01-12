@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Navbar } from '@/components/Navbar';
@@ -55,7 +55,7 @@ interface Branch {
   createdAt: number;
 }
 
-export default function OrderPage() {
+function OrderPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { isAuthenticated } = useConvexAuth();
@@ -175,7 +175,6 @@ export default function OrderPage() {
         notes: customerInfo.notes || undefined,
       };
       // Note: customerEmail is required by backend but types haven't regenerated yet
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const result = await createOrder(orderData as any);
 
       setOrderNumber(result.orderNumber);
@@ -728,5 +727,22 @@ export default function OrderPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function OrderPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-background">
+        <Navbar />
+        <div className="container max-w-3xl mx-auto px-4 pt-24 pb-12">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+          </div>
+        </div>
+      </div>
+    }>
+      <OrderPageContent />
+    </Suspense>
   );
 }

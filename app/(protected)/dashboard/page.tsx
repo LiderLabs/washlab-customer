@@ -53,7 +53,6 @@ export default function DashboardPage() {
   const {
     results: recentOrdersPages,
   } = usePaginatedQuery(
-    // @ts-expect-error - Convex types need regeneration after backend update
     api.customers.getOrders,
     isAuthenticated ? {} : "skip",
     { initialNumItems: 3 }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, Suspense } from "react"
 import { useSearchParams } from "next/navigation"
 import { Navbar } from "@/components/Navbar"
 import { StatusBadge } from "@/components/StatusBadge"
@@ -81,7 +81,7 @@ const ORDER_STATUSES = [
   },
 ] as const
 
-export default function TrackPage() {
+function TrackPageContent() {
   const searchParams = useSearchParams()
   const { isAuthenticated, isLoading: isAuthLoading } = useCurrentCustomer()
   const [searchQuery, setSearchQuery] = useState("")
@@ -92,7 +92,6 @@ export default function TrackPage() {
 
   // Fetch active orders for logged-in user
   const activeOrders = useQuery(
-    // @ts-expect-error - getActiveOrders will be available after Convex types regenerate
     api.customers.getActiveOrders,
     isAuthenticated ? {} : "skip"
   ) as
@@ -863,5 +862,24 @@ export default function TrackPage() {
         )}
       </div>
     </div>
+  )
+}
+
+export default function TrackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className='min-h-screen bg-background'>
+          <Navbar />
+          <div className='container max-w-4xl mx-auto px-4 pt-24 pb-12'>
+            <div className='flex items-center justify-center min-h-[400px]'>
+              <Loader2 className='w-8 h-8 animate-spin text-muted-foreground' />
+            </div>
+          </div>
+        </div>
+      }
+    >
+      <TrackPageContent />
+    </Suspense>
   )
 }

@@ -40,6 +40,7 @@ export const TransactionDetailsDialog = ({
     earned: "Earned",
     redeemed: "Redeemed",
     adjusted: "Adjusted",
+    expired: "Expired",
   }
 
   return (

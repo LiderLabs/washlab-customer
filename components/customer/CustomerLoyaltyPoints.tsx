@@ -33,9 +33,11 @@ export default function CustomerLoyaltyPoints() {
   )
   const allTransactions = transactionsPages?.flat() ?? []
   const hasMoreTransactions = transactionsStatus === "CanLoadMore"
+  const isLoadingMoreTransactions = transactionsStatus === "LoadingMore"
 
   const isLoadingBalance = loyaltyBalance === undefined && isAuthenticated
-  const isLoadingTransactions = transactionsStatus === "LoadingFirstPage" && allTransactions.length === 0
+  const isLoadingTransactions =
+    transactionsStatus === "LoadingFirstPage" && allTransactions.length === 0
 
   const currentPoints = loyaltyBalance?.points || 0
   const totalEarned = loyaltyBalance?.totalEarned || 0
@@ -51,29 +53,31 @@ export default function CustomerLoyaltyPoints() {
   const hasEarnedReward = currentPoints >= 10 && currentProgress === 0
 
   return (
-    <div className="space-y-6">
+    <div className='space-y-6'>
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">Loyalty Points</h1>
-        <p className="text-muted-foreground mt-1">
+        <h1 className='text-3xl font-bold'>Loyalty Points</h1>
+        <p className='text-muted-foreground mt-1'>
           Track your loyalty points and rewards
         </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Current Balance</CardTitle>
-            <Award className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+            <CardTitle className='text-sm font-medium'>
+              Current Balance
+            </CardTitle>
+            <Award className='h-4 w-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
             {isLoadingBalance ? (
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
             ) : (
               <>
-                <div className="text-2xl font-bold">{currentPoints}</div>
-                <p className="text-xs text-muted-foreground">
+                <div className='text-2xl font-bold'>{currentPoints}</div>
+                <p className='text-xs text-muted-foreground'>
                   Available points
                 </p>
               </>
@@ -82,60 +86,60 @@ export default function CustomerLoyaltyPoints() {
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Earned</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+            <CardTitle className='text-sm font-medium'>Total Earned</CardTitle>
+            <TrendingUp className='h-4 w-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
             {isLoadingBalance ? (
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
             ) : (
               <>
-                <div className="text-2xl font-bold text-green-600 dark:text-green-400">
+                <div className='text-2xl font-bold text-green-600 dark:text-green-400'>
                   +{totalEarned}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  Lifetime earned
-                </p>
+                <p className='text-xs text-muted-foreground'>Lifetime earned</p>
               </>
             )}
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Free Washes Earned</CardTitle>
-            <Gift className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+            <CardTitle className='text-sm font-medium'>
+              Free Washes Earned
+            </CardTitle>
+            <Gift className='h-4 w-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
             {isLoadingBalance ? (
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
             ) : (
               <>
-                <div className="text-2xl font-bold">{freeWashesEarned}</div>
-                <p className="text-xs text-muted-foreground">
-                  Rewards earned
-                </p>
+                <div className='text-2xl font-bold'>{freeWashesEarned}</div>
+                <p className='text-xs text-muted-foreground'>Rewards earned</p>
               </>
             )}
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Next Reward</CardTitle>
-            <Target className="h-4 w-4 text-muted-foreground" />
+          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
+            <CardTitle className='text-sm font-medium'>Next Reward</CardTitle>
+            <Target className='h-4 w-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
             {isLoadingBalance ? (
-              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
             ) : (
               <>
-                <div className="text-2xl font-bold">
+                <div className='text-2xl font-bold'>
                   {hasEarnedReward ? "🎉 Ready!" : pointsUntilNextReward}
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  {hasEarnedReward ? "Free wash available" : "points to next reward"}
+                <p className='text-xs text-muted-foreground'>
+                  {hasEarnedReward
+                    ? "Free wash available"
+                    : "points to next reward"}
                 </p>
               </>
             )}
@@ -147,27 +151,27 @@ export default function CustomerLoyaltyPoints() {
       <Card>
         <CardHeader>
           <CardTitle>Progress to Next Reward</CardTitle>
-          <CardDescription>
-            Earn 10 points to get a free wash
-          </CardDescription>
+          <CardDescription>Earn 10 points to get a free wash</CardDescription>
         </CardHeader>
         <CardContent>
           {isLoadingBalance ? (
-            <div className="flex items-center justify-center py-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            <div className='flex items-center justify-center py-8'>
+              <Loader2 className='h-8 w-8 animate-spin text-muted-foreground' />
             </div>
           ) : (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="font-medium">
-                    {hasEarnedReward ? "🎉 Free wash earned!" : `${pointsUntilNextReward} points to go`}
+            <div className='space-y-4'>
+              <div className='space-y-2'>
+                <div className='flex items-center justify-between text-sm'>
+                  <span className='font-medium'>
+                    {hasEarnedReward
+                      ? "🎉 Free wash earned!"
+                      : `${pointsUntilNextReward} points to go`}
                   </span>
-                  <span className="text-muted-foreground">
+                  <span className='text-muted-foreground'>
                     {currentProgress}/10 points
                   </span>
                 </div>
-                <div className="relative h-4 w-full overflow-hidden rounded-full bg-muted">
+                <div className='relative h-4 w-full overflow-hidden rounded-full bg-muted'>
                   <div
                     className={cn(
                       "h-full transition-all duration-500",
@@ -175,15 +179,18 @@ export default function CustomerLoyaltyPoints() {
                         ? "bg-gradient-to-r from-green-500 to-emerald-500"
                         : "bg-gradient-to-r from-purple-500 to-pink-500"
                     )}
-                    style={{ width: `${hasEarnedReward ? 100 : progressPercentage}%` }}
+                    style={{
+                      width: `${hasEarnedReward ? 100 : progressPercentage}%`,
+                    }}
                   />
                 </div>
               </div>
 
               {hasEarnedReward && (
-                <div className="rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 p-4">
-                  <p className="text-sm font-medium text-green-900 dark:text-green-100">
-                    🎉 Congratulations! You&apos;ve earned a free wash! Redeem it on your next order.
+                <div className='rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 p-4'>
+                  <p className='text-sm font-medium text-green-900 dark:text-green-100'>
+                    🎉 Congratulations! You&apos;ve earned a free wash! Redeem
+                    it on your next order.
                   </p>
                 </div>
               )}
@@ -195,8 +202,8 @@ export default function CustomerLoyaltyPoints() {
       {/* Transaction History */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <History className="h-5 w-5" />
+          <CardTitle className='flex items-center gap-2'>
+            <History className='h-5 w-5' />
             Transaction History
           </CardTitle>
           <CardDescription>
@@ -211,15 +218,15 @@ export default function CustomerLoyaltyPoints() {
           />
 
           {hasMoreTransactions && (
-            <div className="flex justify-center mt-6">
+            <div className='flex justify-center mt-6'>
               <Button
-                variant="outline"
+                variant='outline'
                 onClick={() => loadMoreTransactions(20)}
-                disabled={transactionsStatus === "LoadingMore"}
+                disabled={isLoadingMoreTransactions}
               >
-                {transactionsStatus === "LoadingMore" ? (
+                {isLoadingMoreTransactions ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Loader2 className='mr-2 h-4 w-4 animate-spin' />
                     Loading...
                   </>
                 ) : (

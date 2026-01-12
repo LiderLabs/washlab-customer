@@ -50,7 +50,7 @@ export default function PaymentsPage() {
     results: paymentsPages,
     status: paginationStatus,
     loadMore,
-  } = // @ts-expect-error - Convex types need regeneration
+  } =
   usePaginatedQuery(
     api.payments.getByCustomer,
     isAuthenticated ? {} : "skip",

@@ -27,6 +27,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Doc, Id } from '@devlider001/washlab-backend/dataModel';
 
 export default function NotificationsPage() {
   const { isAuthenticated } = useConvexAuth();
@@ -34,25 +35,20 @@ export default function NotificationsPage() {
   const [readFilter, setReadFilter] = useState<string>('all');
   const [selectedNotification, setSelectedNotification] = useState<any>(null);
 
-  // @ts-expect-error - Convex types will be generated
   const allNotifications = useQuery(
     api.notifications.getMyNotifications,
     isAuthenticated ? {} : "skip"
   ) ?? [];
   
-  // @ts-expect-error - Convex types will be generated
   const unreadCount = useQuery(
     api.notifications.getUnreadCount,
     isAuthenticated ? {} : "skip"
   ) ?? 0;
 
-  // @ts-expect-error - Convex types will be generated
   const markAsRead = useMutation(api.notifications.markAsRead);
   
-  // @ts-expect-error - Convex types will be generated
   const markAllAsRead = useMutation(api.notifications.markAllAsRead);
   
-  // @ts-expect-error - Convex types will be generated
   const deleteNotification = useMutation(api.notifications.deleteNotification);
 
   // Filter notifications
@@ -65,7 +61,7 @@ export default function NotificationsPage() {
     return matchesType && matchesRead;
   });
 
-  const handleMarkAsRead = async (notificationId: string) => {
+  const handleMarkAsRead = async (notificationId: Id<"notifications">) => {
     try {
       await markAsRead({ notificationId });
       toast.success('Marked as read');
@@ -83,7 +79,7 @@ export default function NotificationsPage() {
     }
   };
 
-  const handleDelete = async (notificationId: string) => {
+  const handleDelete = async (notificationId: Id<"notifications">) => {
     try {
       await deleteNotification({ notificationId });
       toast.success('Notification deleted');
@@ -95,7 +91,7 @@ export default function NotificationsPage() {
     }
   };
 
-  const handleViewDetails = async (notification: any) => {
+  const handleViewDetails = async (notification: Doc<"notifications">) => {
     setSelectedNotification(notification);
     if (!notification.isRead) {
       await handleMarkAsRead(notification._id);
