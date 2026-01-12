@@ -45,6 +45,11 @@ export const LoyaltyTransactionTableRow = ({
       icon: Edit,
       className: "bg-blue-100 dark:bg-blue-950 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800",
     },
+    expired: {
+      label: "Expired",
+      icon: TrendingDown,
+      className: "bg-gray-100 dark:bg-gray-950 text-gray-700 dark:text-gray-300 border-gray-200 dark:border-gray-800",
+    },
   }
 
   const type = typeConfig[transaction.type]
