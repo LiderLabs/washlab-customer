@@ -37,6 +37,9 @@ import {
   AlertCircle,
   ChevronDown,
   List,
+  Droplets,
+  Wind,
+  Shirt,
 } from "lucide-react"
 import { toast } from "sonner"
 import { format } from "date-fns"
@@ -44,10 +47,65 @@ import { format } from "date-fns"
 // Order status stages for timeline
 const ORDER_STATUSES = [
   {
+    status: "pending_dropoff",
+    label: "Order Placed",
+    icon: ShoppingBag,
+    color: "bg-orange-500",
+  },
+  {
+    status: "checked_in",
+    label: "Checked In",
+    icon: Package,
+    color: "bg-blue-500",
+  },
+  {
+    status: "sorting",
+    label: "Sorting",
+    icon: Package,
+    color: "bg-indigo-500",
+  },
+  {
+    status: "washing",
+    label: "Washing",
+    icon: Droplets,
+    color: "bg-cyan-500",
+  },
+  {
+    status: "drying",
+    label: "Drying",
+    icon: Wind,
+    color: "bg-sky-500",
+  },
+  {
+    status: "folding",
+    label: "Folding",
+    icon: Shirt,
+    color: "bg-teal-500",
+  },
+  {
+    status: "ready",
+    label: "Ready",
+    icon: Package,
+    color: "bg-emerald-500",
+  },
+  {
+    status: "completed",
+    label: "Completed",
+    icon: CheckCircle2,
+    color: "bg-green-600",
+  },
+  {
+    status: "cancelled",
+    label: "Cancelled",
+    icon: AlertCircle,
+    color: "bg-red-500",
+  },
+  // Legacy statuses for backward compatibility
+  {
     status: "pending",
     label: "Order Placed",
     icon: ShoppingBag,
-    color: "bg-blue-500",
+    color: "bg-orange-500",
   },
   {
     status: "in_progress",
@@ -67,19 +125,15 @@ const ORDER_STATUSES = [
     icon: Truck,
     color: "bg-purple-500",
   },
-  {
-    status: "completed",
-    label: "Completed",
-    icon: CheckCircle2,
-    color: "bg-green-600",
-  },
-  {
-    status: "cancelled",
-    label: "Cancelled",
-    icon: AlertCircle,
-    color: "bg-red-500",
-  },
 ] as const
+
+// Filter to only main (non-legacy) statuses for timeline display
+const MAIN_STATUSES = ORDER_STATUSES.filter(
+  (s) =>
+    !["pending", "in_progress", "ready_for_pickup", "delivered"].includes(
+      s.status
+    )
+)
 
 function TrackPageContent() {
   const searchParams = useSearchParams()
@@ -166,15 +220,36 @@ function TrackPageContent() {
     }
   }
 
-  const getStatusIndex = (status: string) => {
-    return ORDER_STATUSES.findIndex((s) => s.status === status)
+  // Map legacy statuses to new statuses for timeline
+  const mapStatusForTimeline = (status: string): string => {
+    const mapping: Record<string, string> = {
+      pending: "pending_dropoff",
+      in_progress: "washing",
+      ready_for_pickup: "ready",
+      delivered: "completed",
+    }
+    return mapping[status] || status
   }
 
+  const getStatusIndex = (status: string) => {
+    // Map legacy statuses first
+    const mapped = mapStatusForTimeline(status)
+
+    // Find index in main statuses array
+    return MAIN_STATUSES.findIndex((s) => s.status === mapped)
+  }
+
+  const mappedStatus = order
+    ? mapStatusForTimeline(order.status)
+    : ""
   const currentStatusIndex = order ? getStatusIndex(order.status) : -1
-  const isCompleted = order?.status === "completed"
+  const isCompleted =
+    order?.status === "completed" || mappedStatus === "completed"
   const isCancelled = order?.status === "cancelled"
-  const isReady = order?.status === "ready_for_pickup"
-  const isPending = order?.status === "pending"
+  const isReady =
+    order?.status === "ready" || order?.status === "ready_for_pickup"
+  const isPending =
+    order?.status === "pending_dropoff" || order?.status === "pending"
 
   const sendWhatsAppContact = () => {
     const message = encodeURIComponent(
@@ -197,12 +272,21 @@ function TrackPageContent() {
   // Map backend status to frontend OrderStatus type
   const mapStatus = (status: string): OrderStatus => {
     const statusMap: Record<string, OrderStatus> = {
+      // New statuses
+      pending_dropoff: "pending_dropoff",
+      checked_in: "checked_in",
+      sorting: "sorting",
+      washing: "washing",
+      drying: "drying",
+      folding: "folding",
+      ready: "ready",
+      completed: "completed",
+      cancelled: "cancelled",
+      // Legacy statuses
       pending: "pending_dropoff",
       in_progress: "washing",
       ready_for_pickup: "ready",
       delivered: "out_for_delivery",
-      completed: "completed",
-      cancelled: "cancelled", // Correctly map cancelled status
     }
     return statusMap[status] || "pending_dropoff"
   }
@@ -490,7 +574,7 @@ function TrackPageContent() {
                 <div className='relative'>
                   {/* Timeline */}
                   <div className='space-y-6'>
-                    {ORDER_STATUSES.map((statusInfo, index) => {
+                    {MAIN_STATUSES.map((statusInfo, index) => {
                       const StatusIcon = statusInfo.icon
                       const isActive = index <= currentStatusIndex
                       const isCurrent = index === currentStatusIndex
@@ -501,7 +585,7 @@ function TrackPageContent() {
                           className='relative flex gap-4'
                         >
                           {/* Timeline Line */}
-                          {index < ORDER_STATUSES.length - 1 && (
+                          {index < MAIN_STATUSES.length - 1 && (
                             <div className='absolute left-6 top-12 w-0.5 h-full'>
                               <div
                                 className={`w-full transition-all duration-500 ${
@@ -548,11 +632,21 @@ function TrackPageContent() {
                             </div>
                             {isCurrent && (
                               <p className='text-sm text-muted-foreground'>
-                                {order.status === "pending" &&
-                                  "Your order has been placed and is awaiting processing"}
-                                {order.status === "in_progress" &&
-                                  "Your laundry is being cleaned"}
-                                {order.status === "ready_for_pickup" &&
+                                {(order.status === "pending_dropoff" ||
+                                  order.status === "pending") &&
+                                  "Your order has been placed and is awaiting drop-off at the branch"}
+                                {order.status === "checked_in" &&
+                                  "Your order has been received and checked in at the branch"}
+                                {order.status === "sorting" &&
+                                  "Your items are being sorted and organized"}
+                                {order.status === "washing" &&
+                                  "Your laundry is being washed"}
+                                {order.status === "drying" &&
+                                  "Your laundry is being dried"}
+                                {order.status === "folding" &&
+                                  "Your laundry is being folded and prepared"}
+                                {(order.status === "ready" ||
+                                  order.status === "ready_for_pickup") &&
                                   "Your laundry is ready for pickup"}
                                 {order.status === "delivered" &&
                                   "Your order has been delivered"}
@@ -560,6 +654,8 @@ function TrackPageContent() {
                                   "Order completed successfully"}
                                 {order.status === "cancelled" &&
                                   "This order has been cancelled"}
+                                {order.status === "in_progress" &&
+                                  "Your laundry is being processed"}
                               </p>
                             )}
                           </div>
@@ -784,7 +880,7 @@ function TrackPageContent() {
             )}
 
             {/* Pending Drop-off */}
-            {isPending && (
+            {(isPending || order.status === "pending_dropoff") && (
               <Card className='shadow-xl border-2 border-amber-200 dark:border-amber-800 bg-amber-50/50 dark:bg-amber-950/20'>
                 <CardContent className='p-6 text-center'>
                   <div className='inline-flex items-center justify-center w-16 h-16 rounded-full bg-amber-500 text-white mb-4'>

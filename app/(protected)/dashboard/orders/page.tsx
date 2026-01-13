@@ -38,6 +38,9 @@ export default function OrdersPage() {
   const [serviceTypeFilter, setServiceTypeFilter] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<Doc<"orders"> | null>(null);
 
+  // Get active services for filter
+  const dbServices = useQuery(api.services.getActive) ?? [];
+
   // Get all orders for the customer with pagination
   const {
     results: ordersPages,
@@ -55,7 +58,23 @@ export default function OrdersPage() {
   // Filter orders
   const filteredOrders = allOrders.filter((order: Doc<"orders">) => {
     const matchesSearch = order.orderNumber.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesStatus = statusFilter === 'all' || order.status === statusFilter;
+    
+    // Handle status filter with legacy status mapping
+    let matchesStatus = true;
+    if (statusFilter !== 'all') {
+      if (statusFilter === 'pending') {
+        matchesStatus = order.status === 'pending' || order.status === 'pending_dropoff';
+      } else if (statusFilter === 'in_progress') {
+        matchesStatus = ['in_progress', 'checked_in', 'sorting', 'washing', 'drying', 'folding'].includes(order.status);
+      } else if (statusFilter === 'ready_for_pickup') {
+        matchesStatus = order.status === 'ready' || order.status === 'ready_for_pickup';
+      } else if (statusFilter === 'delivered') {
+        matchesStatus = order.status === 'delivered' || order.status === 'completed';
+      } else {
+        matchesStatus = order.status === statusFilter;
+      }
+    }
+    
     const matchesServiceType =
       serviceTypeFilter === 'all' || order.serviceType === serviceTypeFilter;
     return matchesSearch && matchesStatus && matchesServiceType;
@@ -64,12 +83,21 @@ export default function OrdersPage() {
   // Map backend status to frontend OrderStatus type for StatusBadge
   const mapStatus = (status: string) => {
     const statusMap: Record<string, string> = {
+      // New statuses
+      pending_dropoff: "pending_dropoff",
+      checked_in: "checked_in",
+      sorting: "sorting",
+      washing: "washing",
+      drying: "drying",
+      folding: "folding",
+      ready: "ready",
+      completed: "completed",
+      cancelled: "cancelled",
+      // Legacy statuses
       pending: "pending_dropoff",
       in_progress: "washing",
       ready_for_pickup: "ready",
       delivered: "out_for_delivery",
-      completed: "completed",
-      cancelled: "cancelled",
     };
     return statusMap[status] || "pending_dropoff";
   };
@@ -107,14 +135,20 @@ export default function OrdersPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value='all'>All Statuses</SelectItem>
-                  <SelectItem value='pending'>Pending</SelectItem>
-                  <SelectItem value='in_progress'>In Progress</SelectItem>
-                  <SelectItem value='ready_for_pickup'>
-                    Ready for Pickup
-                  </SelectItem>
-                  <SelectItem value='delivered'>Delivered</SelectItem>
+                  <SelectItem value='pending_dropoff'>Pending Dropoff</SelectItem>
+                  <SelectItem value='checked_in'>Checked In</SelectItem>
+                  <SelectItem value='sorting'>Sorting</SelectItem>
+                  <SelectItem value='washing'>Washing</SelectItem>
+                  <SelectItem value='drying'>Drying</SelectItem>
+                  <SelectItem value='folding'>Folding</SelectItem>
+                  <SelectItem value='ready'>Ready</SelectItem>
                   <SelectItem value='completed'>Completed</SelectItem>
                   <SelectItem value='cancelled'>Cancelled</SelectItem>
+                  {/* Legacy statuses */}
+                  <SelectItem value='pending'>Pending (Legacy)</SelectItem>
+                  <SelectItem value='in_progress'>In Progress (Legacy)</SelectItem>
+                  <SelectItem value='ready_for_pickup'>Ready for Pickup (Legacy)</SelectItem>
+                  <SelectItem value='delivered'>Delivered (Legacy)</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -128,9 +162,11 @@ export default function OrdersPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value='all'>All Services</SelectItem>
-                  <SelectItem value='wash_only'>Wash Only</SelectItem>
-                  <SelectItem value='wash_and_dry'>Wash & Dry</SelectItem>
-                  <SelectItem value='dry_only'>Dry Only</SelectItem>
+                  {dbServices.map(service => (
+                    <SelectItem key={service._id} value={service.code}>
+                      {service.name}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

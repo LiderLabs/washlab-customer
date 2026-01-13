@@ -91,6 +91,9 @@ function OrderPageContent() {
     {} // Public query, no auth needed
   ) ?? []) as Branch[];
 
+  // Get active services
+  const dbServices = useQuery(api.services.getActive) ?? [];
+
   // Create order mutation
   const createOrder = useMutation(api.orders.createOnline);
 
@@ -110,17 +113,40 @@ function OrderPageContent() {
   // Check URL params for pre-selected service
   useEffect(() => {
     const serviceFromUrl = searchParams.get('service');
-    if (serviceFromUrl && ['wash_only', 'wash_and_dry', 'dry_only'].includes(serviceFromUrl)) {
-      setServiceType(serviceFromUrl as ServiceType);
+    if (serviceFromUrl && dbServices.length > 0) {
+      const service = dbServices.find(s => s.code === serviceFromUrl);
+      if (service) {
+        setServiceType(serviceFromUrl as ServiceType);
+      }
     }
-  }, [searchParams]);
+  }, [searchParams, dbServices]);
 
-  // Calculate pricing
-  const selectedService = serviceType ? getServiceById(serviceType) : null;
-  const pricePerLoad = selectedService?.price || PRICING_CONFIG.services[1].price;
+  // Set default service when services load
+  useEffect(() => {
+    if (dbServices.length > 0 && !serviceType) {
+      setServiceType(dbServices[0].code as ServiceType);
+    }
+  }, [dbServices, serviceType]);
+
+  // Get selected service from database
+  const selectedDbService = dbServices.find(s => s.code === serviceType);
+  
+  // Calculate pricing based on service type
   const estimatedWeight = clothesCount * 0.3;
-  const estimatedLoads = calculateLoads(estimatedWeight) || 1;
-  const estimatedPrice = estimatedLoads * pricePerLoad;
+  let estimatedPrice = 0;
+  let pricePerUnit = 0;
+  
+  if (selectedDbService) {
+    if (selectedDbService.pricingType === 'per_kg') {
+      pricePerUnit = selectedDbService.basePrice;
+      estimatedPrice = estimatedWeight * selectedDbService.basePrice;
+    } else {
+      // per_load - assume 8kg per load
+      const estimatedLoads = Math.ceil(estimatedWeight / 8);
+      pricePerUnit = selectedDbService.basePrice;
+      estimatedPrice = estimatedLoads * selectedDbService.basePrice;
+    }
+  }
 
   const canProceed = () => {
     switch (currentStep) {
@@ -156,6 +182,14 @@ function OrderPageContent() {
 
     setIsSubmitting(true);
     try {
+      // Calculate estimated loads based on service pricing type
+      let calculatedLoads = 1;
+      if (selectedDbService) {
+        if (selectedDbService.pricingType === 'per_load') {
+          calculatedLoads = Math.ceil(estimatedWeight / 8);
+        }
+      }
+      
       // Note: customerEmail is required by backend but types haven't regenerated yet
       const orderData = {
         customerName: customerInfo.name || convexUser?.name || clerkUser?.fullName || '',
@@ -165,7 +199,7 @@ function OrderPageContent() {
         serviceType,
         estimatedWeight,
         itemCount: clothesCount,
-        estimatedLoads,
+        estimatedLoads: calculatedLoads,
         whitesSeparate: hasWhites ? washSeparately : false,
         isDelivery,
         deliveryAddress: isDelivery ? customerInfo.deliveryAddress : undefined,
@@ -298,19 +332,43 @@ function OrderPageContent() {
           {currentStep === 0 && (
             <div className="animate-fade-in">
               <h2 className="text-lg sm:text-xl font-display font-semibold mb-4 sm:mb-6">Select Your Service</h2>
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                {PRICING_CONFIG.services.map(service => (
-                  <ServiceCard
-                    key={service.id}
-                    icon={service.id === 'wash_and_dry' ? Sparkles : service.id === 'wash_only' ? Droplets : Wind}
-                    title={service.label}
-                    description={service.description}
-                    isSelected={serviceType === service.id}
-                    onClick={() => setServiceType(service.id as ServiceType)}
-                    price={`₵${service.price}${service.unit}`}
-                  />
-                ))}
-              </div>
+              {dbServices === undefined ? (
+                <div className="text-center py-8">
+                  <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground">Loading services...</p>
+                </div>
+              ) : dbServices.length === 0 ? (
+                <div className="text-center py-12 bg-muted/50 rounded-xl border border-border">
+                  <p className="text-muted-foreground mb-2">No services available</p>
+                  <p className="text-sm text-muted-foreground">Please check back later or contact support</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                  {dbServices.map(service => {
+                    // Map service code to icon (fallback to Sparkles)
+                    const getIcon = (code: string) => {
+                      if (code.includes('wash') && code.includes('dry')) return Sparkles;
+                      if (code.includes('wash')) return Droplets;
+                      if (code.includes('dry')) return Wind;
+                      return Sparkles;
+                    };
+                    
+                    return (
+                      <ServiceCard
+                        key={service._id}
+                        icon={getIcon(service.code)}
+                        title={service.name}
+                        description={service.description || ''}
+                        isSelected={serviceType === service.code}
+                        onClick={() => setServiceType(service.code as ServiceType)}
+                        price={service.pricingType === 'per_kg' 
+                          ? `₵${service.basePrice.toFixed(2)}/kg`
+                          : `₵${service.basePrice.toFixed(2)}/load`}
+                      />
+                    );
+                  })}
+                </div>
+              )}
             </div>
           )}
 
@@ -614,7 +672,7 @@ function OrderPageContent() {
                 <div className="space-y-4 mb-6">
                   <div className="flex justify-between py-3 border-b border-border">
                     <span className="text-muted-foreground">Service</span>
-                    <span className="font-medium capitalize">{serviceType?.replace('_', ' & ')}</span>
+                    <span className="font-medium">{selectedDbService?.name || serviceType?.replace('_', ' & ')}</span>
                   </div>
                   <div className="flex justify-between py-3 border-b border-border">
                     <span className="text-muted-foreground">Items</span>
@@ -624,10 +682,12 @@ function OrderPageContent() {
                     <span className="text-muted-foreground">Est. Weight</span>
                     <span className="font-medium">~{estimatedWeight.toFixed(1)} kg</span>
                   </div>
-                  <div className="flex justify-between py-3 border-b border-border">
-                    <span className="text-muted-foreground">Est. Loads</span>
-                    <span className="font-medium">{estimatedLoads}</span>
-                  </div>
+                  {selectedDbService?.pricingType === 'per_load' && (
+                    <div className="flex justify-between py-3 border-b border-border">
+                      <span className="text-muted-foreground">Est. Loads</span>
+                      <span className="font-medium">{Math.ceil(estimatedWeight / 8)}</span>
+                    </div>
+                  )}
                   <div className="flex justify-between py-3 border-b border-border">
                     <span className="text-muted-foreground">Whites</span>
                     <span className="font-medium">

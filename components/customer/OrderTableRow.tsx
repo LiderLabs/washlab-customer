@@ -30,12 +30,21 @@ interface OrderTableRowProps {
 // Map backend status to frontend OrderStatus type
 const mapStatus = (status: string): OrderStatus => {
   const statusMap: Record<string, OrderStatus> = {
+    // New statuses
+    pending_dropoff: "pending_dropoff",
+    checked_in: "checked_in",
+    sorting: "sorting",
+    washing: "washing",
+    drying: "drying",
+    folding: "folding",
+    ready: "ready",
+    completed: "completed",
+    cancelled: "cancelled",
+    // Legacy statuses
     pending: "pending_dropoff",
     in_progress: "washing",
     ready_for_pickup: "ready",
     delivered: "out_for_delivery",
-    completed: "completed",
-    cancelled: "cancelled", // Correctly map cancelled status
   }
   return statusMap[status] || "pending_dropoff"
 }
