@@ -15,6 +15,18 @@ const isPublicRoute = createRouteMatcher([
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
+  const maintenanceEnabled = process.env.MAINTENANCE_MODE === "true"
+  const pathname = req.nextUrl.pathname
+
+  if (maintenanceEnabled && pathname !== "/maintenance") {
+    if (pathname.startsWith("/api")) {
+      return new NextResponse("Service temporarily unavailable", {
+        status: 503,
+      })
+    }
+    return NextResponse.rewrite(new URL("/maintenance", req.url))
+  }
+
   // Skip middleware for public routes
   if (isPublicRoute(req)) {
     return NextResponse.next();
