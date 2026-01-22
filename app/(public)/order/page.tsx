@@ -153,7 +153,7 @@ function OrderPageContent() {
       case 0: return serviceType !== null;
       case 1: return clothesCount > 0;
       case 2: return hasWhites !== null && (hasWhites === false || washSeparately || mixDisclaimer);
-      case 3: return branchId !== '' && (isDelivery ? customerInfo.deliveryAddress : true);
+      case 3: return branchId !== '';
       case 4: {
         if (isAuthenticated && convexUser) {
           return true; // If authenticated, use stored data
@@ -483,7 +483,7 @@ function OrderPageContent() {
           {currentStep === 3 && (
             <div className="animate-fade-in">
               <h2 className="text-lg sm:text-xl font-display font-semibold mb-4 sm:mb-6">Select Branch & Delivery</h2>
-              <div className="max-w-md mx-auto space-y-6">
+              <div className="max-w-2xl mx-auto space-y-6">
                 <div>
                   <Label htmlFor="branch">Select Branch *</Label>
                   <Select value={branchId} onValueChange={setBranchId}>
@@ -505,58 +505,64 @@ function OrderPageContent() {
 
                 <div className="space-y-3">
                   <Label>Delivery Option</Label>
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* Self Service - ENABLED */}
                     <button
                       onClick={() => setIsDelivery(false)}
-                      className={`p-4 rounded-xl border-2 transition-all text-left ${
-                        !isDelivery
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border hover:border-primary/50'
-                      }`}
+                      className="p-4 rounded-xl border-2 transition-all text-left border-primary bg-primary/5"
                     >
-                      <span className="font-medium block">Pickup</span>
-                      <span className="text-xs text-muted-foreground">I&apos;ll collect myself</span>
+                      <span className="font-medium block mb-1">Self Service</span>
+                      <span className="text-xs text-muted-foreground">
+                        You drop off your laundry and pick it up yourself.
+                      </span>
                     </button>
-                    <button
-                      onClick={() => setIsDelivery(true)}
-                      className={`p-4 rounded-xl border-2 transition-all text-left ${
-                        isDelivery
-                          ? 'border-primary bg-primary/5'
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                    >
-                      <span className="font-medium block">Delivery</span>
-                      <span className="text-xs text-muted-foreground">Deliver to my location</span>
-                    </button>
-                  </div>
-                </div>
 
-                {isDelivery && (
-                  <div className="space-y-4 animate-fade-in">
-                    <div>
-                      <Label htmlFor="deliveryAddress">Delivery Address *</Label>
-                      <Textarea
-                        id="deliveryAddress"
-                        value={customerInfo.deliveryAddress}
-                        onChange={(e) => setCustomerInfo({ ...customerInfo, deliveryAddress: e.target.value })}
-                        placeholder="Full address for delivery"
-                        className="mt-1"
-                        rows={3}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="deliveryPhone">Delivery Phone Number</Label>
-                      <Input
-                        id="deliveryPhone"
-                        type="tel"
-                        value={customerInfo.deliveryPhone}
-                        onChange={(e) => setCustomerInfo({ ...customerInfo, deliveryPhone: e.target.value })}
-                        placeholder="If different from your phone"
-                        className="mt-1"
-                      />
-                    </div>
+                    {/* Drop-off + Delivery - DISABLED */}
+                    <button
+                      disabled
+                      className="p-4 rounded-xl border-2 transition-all text-left border-border bg-muted/30 opacity-60 cursor-not-allowed relative"
+                    >
+                      <span className="absolute top-2 right-2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-warning/20 text-warning border border-warning/30">
+                        Coming soon
+                      </span>
+                      <span className="font-medium block mb-1 text-muted-foreground">Drop-off + Delivery</span>
+                      <span className="text-xs text-muted-foreground">
+                        You drop off your laundry; we deliver it back to you.
+                      </span>
+                    </button>
+
+                    {/* Pickup + Self Pick - DISABLED */}
+                    <button
+                      disabled
+                      className="p-4 rounded-xl border-2 transition-all text-left border-border bg-muted/30 opacity-60 cursor-not-allowed relative"
+                    >
+                      <span className="absolute top-2 right-2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-warning/20 text-warning border border-warning/30">
+                        Coming soon
+                      </span>
+                      <span className="font-medium block mb-1 text-muted-foreground">Pickup + Self Pick</span>
+                      <span className="text-xs text-muted-foreground">
+                        We pick up your laundry; you collect it from WashLab.
+                      </span>
+                    </button>
+
+                    {/* Full Service - DISABLED */}
+                    <button
+                      disabled
+                      className="p-4 rounded-xl border-2 transition-all text-left border-border bg-muted/30 opacity-60 cursor-not-allowed relative"
+                    >
+                      <span className="absolute top-2 right-2 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-warning/20 text-warning border border-warning/30">
+                        Coming soon
+                      </span>
+                      <span className="font-medium block mb-1 text-muted-foreground">Full Service</span>
+                      <span className="text-xs text-muted-foreground">
+                        We pick up and deliver your laundry. No contact needed.
+                      </span>
+                    </button>
                   </div>
-                )}
+                  <p className="text-xs text-muted-foreground text-center mt-3 bg-muted/50 rounded-lg p-3">
+                    Delivery and pickup services are coming soon. WashLab currently operates as self-service only.
+                  </p>
+                </div>
               </div>
             </div>
           )}
@@ -702,16 +708,7 @@ function OrderPageContent() {
                   </div>
                   <div className="flex justify-between py-3 border-b border-border">
                     <span className="text-muted-foreground">Delivery</span>
-                    <span className="font-medium">
-                      {isDelivery ? (
-                        <span className="flex items-center gap-1">
-                          <MapPin className="h-3 w-3" />
-                          Yes
-                        </span>
-                      ) : (
-                        'Pickup'
-                      )}
-                    </span>
+                    <span className="font-medium">Self Service</span>
                   </div>
                 </div>
 
@@ -741,12 +738,6 @@ function OrderPageContent() {
                         {customerInfo.name}<br />
                         {customerInfo.hall}, Room {customerInfo.room}<br />
                         {customerInfo.phone}
-                      </>
-                    )}
-                    {isDelivery && customerInfo.deliveryAddress && (
-                      <>
-                        <br />
-                        <span className="text-xs">{customerInfo.deliveryAddress}</span>
                       </>
                     )}
                   </p>
