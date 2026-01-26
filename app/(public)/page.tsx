@@ -134,8 +134,6 @@ export default function Home() {
           {/* Right - Phone Slideshow */}
           <div className="relative flex justify-center lg:justify-end w-full max-w-[280px] md:max-w-[320px] lg:max-w-[360px]">
             <div className="relative">
-              {/* Glow effect behind phone */}
-              <div className="absolute inset-0 bg-gradient-to-r from-primary/40 to-blue-500/40 blur-3xl animate-pulse" />
               <PhoneSlideshow />
             </div>
           </div>
@@ -324,6 +322,12 @@ export default function Home() {
                   isOpen: true 
                 },
                 { 
+                  name: 'Lancaster University Ghana', 
+                  location: 'Lancaster Campus', 
+                  image: '/assets/lancaster.jpg',
+                  isOpen: true 
+                },
+                { 
                   name: 'University of Cape Coast', 
                   location: 'UCC Campus', 
                   image: '/assets/University of Cape coast.jpg',
@@ -331,7 +335,7 @@ export default function Home() {
                 },
                 { 
                   name: 'JJ Nortey Hall', 
-                  location: 'Legon Campus', 
+                  location: 'Valley View Campus', 
                   image: '/assets/JJ Nortey hall.webp',
                   isOpen: true 
                 },
@@ -369,7 +373,7 @@ export default function Home() {
                 },
                 { 
                   name: 'JJ Nortey Hall', 
-                  location: 'Legon Campus', 
+                  location: 'Valley view Campus', 
                   image: '/assets/JJ Nortey hall.webp',
                   isOpen: true 
                 },
@@ -385,6 +389,7 @@ export default function Home() {
                   image: '/assets/academic-city-hostel-room-1.jpg',
                   isOpen: true 
                 },
+              
                 { 
                   name: 'Coming to Your Campus Soon', 
                   location: 'Stay tuned!', 
