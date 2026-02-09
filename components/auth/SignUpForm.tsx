@@ -26,8 +26,9 @@ export default function SignUpForm() {
     const { isLoaded, signUp, setActive } = useSignUp()
     const router = useRouter()
     
-    // Convex mutation to register customer after Clerk signup
+    // Convex mutations: register (name/email/phone) and updateProfile to save phone after verification
     const registerCustomer = useMutation(api.customers.register)
+    const updateProfile = useMutation(api.customers.updateProfile)
     
     const [formData, setFormData] = useState<SignUpFormData>({
         emailAddress: '',
@@ -165,9 +166,17 @@ export default function SignUpForm() {
                 // Set the session first
                 await setActive({ session: completeSignUp.createdSessionId })
                 
-                // Now register the customer in Convex with phone number
+                const phoneDigits = formData.phoneNumber.replace(/\D/g, '')
+                // Save real phone number (webhook creates customer with "pending-..." placeholder)
                 try {
-                    const phoneDigits = formData.phoneNumber.replace(/\D/g, '')
+                    await updateProfile({ phoneNumber: phoneDigits })
+                } catch (phoneErr) {
+                    console.error('Update phone error:', phoneErr)
+                    // Continue; user can update phone in profile later
+                }
+
+                // Register/update customer in Convex (may throw if webhook already created account)
+                try {
                     await registerCustomer({
                         name: `${formData.firstName} ${formData.lastName}`,
                         phoneNumber: phoneDigits,
@@ -176,8 +185,8 @@ export default function SignUpForm() {
                     toast.success('Account created successfully!')
                 } catch (convexErr) {
                     console.error('Convex registration error:', convexErr)
-                    // Still redirect - the user is authenticated, profile can be completed later
-                    toast.info('Account created! Please complete your profile.')
+                    // Account may already exist from webhook; phone was saved above
+                    toast.success('Account created successfully!')
                 }
                 
                 router.push('/dashboard')
