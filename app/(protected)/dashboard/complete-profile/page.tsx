@@ -1,0 +1,205 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { useMutation, useConvexAuth } from 'convex/react';
+import { api } from '@devlider001/washlab-backend/api';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Loader2, Phone, User, CheckCircle2, Sparkles } from 'lucide-react';
+import { toast } from 'sonner';
+
+export default function CompleteProfilePage() {
+  const { user, isLoaded: isClerkLoaded } = useUser();
+  const { isAuthenticated } = useConvexAuth();
+  const router = useRouter();
+  
+  const [isLoading, setIsLoading] = useState(false);
+  const [isComplete, setIsComplete] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    phoneNumber: '',
+  });
+
+  // Get phone number from Clerk metadata if available
+  useEffect(() => {
+    if (user) {
+      const clerkPhone = user.unsafeMetadata?.phoneNumber as string;
+      setFormData({
+        name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+        phoneNumber: clerkPhone || '',
+      });
+    }
+  }, [user]);
+
+  // Register mutation
+  const register = useMutation(api.customers.register);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!isAuthenticated) {
+      toast.error('Please wait for authentication to complete');
+      return;
+    }
+
+    // Validate phone number (Ghana format)
+    const phoneRegex = /^0[235][0-9]{8}$/;
+    if (!phoneRegex.test(formData.phoneNumber)) {
+      toast.error('Please enter a valid Ghana phone number (e.g., 0551234567)');
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      await register({
+        name: formData.name,
+        phoneNumber: formData.phoneNumber,
+        email: user?.primaryEmailAddress?.emailAddress,
+      });
+
+      setIsComplete(true);
+      toast.success('Profile completed successfully!');
+      
+      // Redirect to dashboard
+      setTimeout(() => {
+        router.push('/dashboard');
+      }, 1500);
+    } catch (err: any) {
+      console.error('Registration error:', err);
+      
+      // Check if user already exists
+      if (err.message?.includes('already registered')) {
+        toast.info('Account already set up! Redirecting...');
+        setTimeout(() => {
+          router.push('/dashboard');
+        }, 1000);
+        return;
+      }
+      
+      toast.error(err.message || 'Failed to complete profile');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (!isClerkLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (isComplete) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 p-4">
+        <Card className="w-full max-w-md">
+          <CardContent className="pt-6">
+            <div className="space-y-6 text-center">
+              <div className="flex justify-center">
+                <div className="relative">
+                  <div className="h-16 w-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <CheckCircle2 className="h-6 w-6 text-primary animate-pulse" />
+                  </div>
+                </div>
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold">Profile Complete!</h2>
+                <p className="text-sm text-muted-foreground mt-2">
+                  Redirecting you to your dashboard...
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="flex justify-center mb-4">
+            <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-blue-600 to-purple-600">
+              <Sparkles className="h-7 w-7 text-white" />
+            </div>
+          </div>
+          <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
+          <CardDescription>
+            Just one more step to start using WashLab
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="John Doe"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="pl-10"
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phoneNumber">Phone Number</Label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                <Input
+                  id="phoneNumber"
+                  type="tel"
+                  placeholder="0551234567"
+                  value={formData.phoneNumber}
+                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
+                  className="pl-10"
+                  required
+                />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Ghana phone number format (e.g., 0551234567)
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <Button type="submit" className="w-full" disabled={isLoading || !isAuthenticated}>
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : !isAuthenticated ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Connecting...
+                  </>
+                ) : (
+                  'Complete Profile'
+                )}
+              </Button>
+            </div>
+          </form>
+
+          <div className="mt-6 text-center">
+            <p className="text-xs text-muted-foreground">
+              Your phone number will be used for order updates and notifications
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
