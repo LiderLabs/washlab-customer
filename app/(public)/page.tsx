@@ -82,7 +82,8 @@ export default function Home() {
             </h1>
 
             <p className="text-white/90 text-lg md:text-xl lg:text-2xl mb-6 leading-relaxed font-medium">
-              Wash. Dry. Fold. Done.
+
+              Wash. Dry. Fold. Done!
             </p>
             <p className="text-white/80 text-base md:text-lg mb-6 leading-relaxed">
               Drop your clothes. Pay instantly. Get notified when it's ready.
@@ -165,10 +166,8 @@ export default function Home() {
       <section className="py-16 sm:py-20 md:py-24 bg-gradient-to-b from-background via-primary/5 to-background">
         <div className="container px-4 md:px-6">
           <div className="text-center mb-12 sm:mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-semibold mb-4">
-              <Zap className="w-4 h-4" />
-              Simple Process
-            </div>
+
+
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
               How It Works
             </h2>
@@ -491,7 +490,9 @@ export default function Home() {
               <Link href="/dashboard" className="hover:text-primary transition-colors">Account</Link>
             </nav>
             <p className="text-xs text-muted-foreground">
-              © 2025 WashLab
+
+             © 2026 WashLab · Powered by Lider Technologies LTD
+
             </p>
           </div>
         </div>
