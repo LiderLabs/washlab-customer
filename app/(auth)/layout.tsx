@@ -1,6 +1,9 @@
 import Image from "next/image"
 import Link from "next/link"
 
+// Avoid prerendering auth pages so Clerk env is only needed at request time
+export const dynamic = 'force-dynamic'
+
 export default function AuthLayout({
   children,
 }: Readonly<{
