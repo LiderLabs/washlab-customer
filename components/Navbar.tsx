@@ -25,9 +25,8 @@ export const Navbar = () => {
   const { user, isLoaded } = useUser()
 
   useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20)
-    }
+
+    const handleScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
@@ -69,12 +68,12 @@ export const Navbar = () => {
               </Link>
             ))}
 
-            {/* Theme Switcher */}
+
             <div className='ml-2'>
               <ThemeSwitcher />
             </div>
 
-            {/* User Bubble or Dashboard Link */}
+
             {isLoaded && user ? (
               <Link
                 href='/dashboard'
@@ -123,11 +122,7 @@ export const Navbar = () => {
               className='p-2 rounded-lg hover:bg-muted transition-colors'
               onClick={() => setIsOpen(!isOpen)}
             >
-              {isOpen ? (
-                <X className='w-6 h-6' />
-              ) : (
-                <Menu className='w-6 h-6' />
-              )}
+
             </button>
           </div>
         </div>
