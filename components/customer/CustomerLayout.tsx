@@ -29,7 +29,6 @@ import {
   Package,
   Bell,
   User,
-  Settings,
   LogOut,
   Menu,
   Sun,
@@ -176,12 +175,12 @@ function SidebarContent({
                 Profile
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
+            {/* <DropdownMenuItem asChild>
               <Link href="/dashboard/settings" className="cursor-pointer">
                 <Settings className="mr-2 h-4 w-4" />
                 Settings
               </Link>
-            </DropdownMenuItem>
+            </DropdownMenuItem> */}
             <DropdownMenuSeparator />
             <DropdownMenuItem
               onClick={() => {
@@ -363,12 +362,12 @@ export default function CustomerLayout({ children }: CustomerLayoutProps) {
                         Profile
                       </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
+                    {/* <DropdownMenuItem asChild>
                       <Link href="/dashboard/settings" className="cursor-pointer">
                         <Settings className="mr-2 h-4 w-4" />
                         Settings
                       </Link>
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
                       onClick={() => {

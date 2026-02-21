@@ -5,12 +5,11 @@ import { Logo } from '@/components/Logo';
 import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { PhoneSlideshow } from '@/components/PhoneSlideshow';
-import { ArrowRight, Zap, Clock, CreditCard, Gift, MapPin, Star, Building2, ArrowUp } from 'lucide-react';
+import { ArrowRight, Clock, CreditCard, Gift, MapPin, Star, Building2, ArrowUp } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 
 const SCHOOL_LOGOS = [
-  '/assets/Academic city.jpg',
   '/assets/Valley View.jpg',
   '/assets/Ucc.jpg',
   '/assets/Lancaster Uni.jpg',
@@ -71,18 +70,12 @@ export default function Home() {
         <div className="relative z-20 container px-4 md:px-6 flex flex-col lg:flex-row items-center justify-between gap-8 md:gap-12 pb-32 md:pb-40 mt-8 md:mt-0">
           {/* Left - Text */}
           <div className="max-w-2xl text-center lg:text-left flex flex-col gap-6">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-primary/20 to-blue-500/20 backdrop-blur-md border border-primary/30 text-primary text-sm font-semibold mb-2 mx-auto lg:mx-0 w-fit shadow-lg">
-              <Zap className="w-4 h-4 text-yellow-400" />
-              <span className="bg-gradient-to-r from-primary to-blue-400 bg-clip-text text-transparent">Campus Laundry Made Easy</span>
-            </div>
-
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-extrabold mb-4 leading-tight tracking-tight">
               <span className="block mb-2 text-white">Laundry made easy</span>
               <span className="block bg-gradient-to-r from-blue-400 via-primary to-purple-400 bg-clip-text text-transparent">for campus life.</span>
             </h1>
 
             <p className="text-white/90 text-lg md:text-xl lg:text-2xl mb-6 leading-relaxed font-medium">
-
               Wash. Dry. Fold. Done!
             </p>
             <p className="text-white/80 text-base md:text-lg mb-6 leading-relaxed">
@@ -116,10 +109,10 @@ export default function Home() {
             {/* Trust indicators */}
             <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 sm:gap-6 mt-4">
               <div className="flex items-center gap-2 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
-                <div className="flex -space-x-1">
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white" />
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white" />
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-2 border-white" />
+                <div className="flex -space-x-2">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 border-2 border-white flex items-center justify-center text-white text-xs font-bold">AK</div>
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white flex items-center justify-center text-white text-xs font-bold">EM</div>
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-2 border-white flex items-center justify-center text-white text-xs font-bold">JO</div>
                 </div>
                 <span className="text-white text-sm font-semibold">5,000+ Students</span>
               </div>
@@ -166,8 +159,6 @@ export default function Home() {
       <section className="py-16 sm:py-20 md:py-24 bg-gradient-to-b from-background via-primary/5 to-background">
         <div className="container px-4 md:px-6">
           <div className="text-center mb-12 sm:mb-16">
-
-
             <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4">
               How It Works
             </h2>
@@ -185,7 +176,6 @@ export default function Home() {
               {[
                 {
                   image: '/assets/photo 1.jpeg',
-                  icon: '📱',
                   title: 'Place Your Order',
                   desc: 'Open the app and place your laundry order in seconds',
                   detail: 'Choose your services, select pickup time, and pay securely through the app',
@@ -193,7 +183,6 @@ export default function Home() {
                 },
                 {
                   image: '/assets/picture 2.jpeg',
-                  icon: '🧺',
                   title: 'Drop Off Your Laundry',
                   desc: 'Head to WashLab with your laundry basket',
                   detail: 'Visit any of our campus locations during operating hours',
@@ -201,7 +190,6 @@ export default function Home() {
                 },
                 {
                   image: '/assets/pic 3.jpeg',
-                  icon: '✨',
                   title: 'We Handle Everything',
                   desc: 'Attendant completes your laundry with care',
                   detail: 'Professional washing, drying, and folding by our expert team',
@@ -209,7 +197,6 @@ export default function Home() {
                 },
                 {
                   image: '/assets/picture 4.jpeg',
-                  icon: '🎉',
                   title: 'Pick Up Fresh Clothes',
                   desc: 'Get notified and collect your fresh, clean laundry',
                   detail: 'Receive a notification when your order is ready for pickup',
@@ -235,23 +222,9 @@ export default function Home() {
                       </div>
                     </div>
 
-                    {/* Center step indicator for desktop */}
-                    <div className="hidden md:flex absolute left-1/2 transform -translate-x-1/2 z-10">
-                      <div className="w-20 h-20 rounded-full bg-background border-4 border-primary flex items-center justify-center shadow-xl">
-                        <span className="text-3xl">{item.icon}</span>
-                      </div>
-                    </div>
-
                     {/* Text Side */}
                     <div className={`w-full md:w-[45%] ${index % 2 === 1 ? 'md:text-right' : 'md:text-left'} text-center`}>
                       <div className="space-y-4 bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 md:p-8 shadow-lg hover:shadow-xl transition-shadow">
-                        {/* Mobile step icon */}
-                        <div className="md:hidden flex justify-center mb-6">
-                          <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
-                            <span className="text-3xl">{item.icon}</span>
-                          </div>
-                        </div>
-                        
                         <h3 className="text-2xl md:text-3xl font-bold mt-2">{item.title}</h3>
                         <p className="text-muted-foreground text-base md:text-lg font-medium">{item.desc}</p>
                         <p className="text-sm md:text-base text-muted-foreground/80 leading-relaxed">{item.detail}</p>
@@ -315,12 +288,6 @@ export default function Home() {
             <div className="flex gap-6 animate-location-scroll">
               {[
                 { 
-                  name: 'University of Professional Studies', 
-                  location: 'UPSA Campus', 
-                  image: '/assets/University of Professional Studies.jpg',
-                  isOpen: true 
-                },
-                { 
                   name: 'Lancaster University Ghana', 
                   location: 'Lancaster Campus', 
                   image: '/assets/lancaster.jpg',
@@ -359,9 +326,9 @@ export default function Home() {
                 },
               ].concat([
                 { 
-                  name: 'University of Professional Studies', 
-                  location: 'UPSA Campus', 
-                  image: '/assets/University of Professional Studies.jpg',
+                  name: 'Lancaster University Ghana', 
+                  location: 'Lancaster Campus', 
+                  image: '/assets/lancaster.jpg',
                   isOpen: true 
                 },
                 { 
@@ -388,7 +355,6 @@ export default function Home() {
                   image: '/assets/academic-city-hostel-room-1.jpg',
                   isOpen: true 
                 },
-              
                 { 
                   name: 'Coming to Your Campus Soon', 
                   location: 'Stay tuned!', 
@@ -453,11 +419,6 @@ export default function Home() {
 
         <div className="container px-4 md:px-6 relative z-10">
           <div className="max-w-2xl mx-auto text-center">
-            {/* Icon or badge */}
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-white/20 backdrop-blur-sm mb-4 animate-bounce-slow">
-              <Zap className="w-7 h-7 text-white" />
-            </div>
-
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 leading-tight">
               Ready to wash smarter?
             </h2>
@@ -489,11 +450,9 @@ export default function Home() {
               <Link href="/track" className="hover:text-primary transition-colors">Track Order</Link>
               <Link href="/dashboard" className="hover:text-primary transition-colors">Account</Link>
             </nav>
-            <p className="text-xs text-muted-foreground">
-
-             © 2026 WashLab · Powered by Lider Technologies LTD
-
-            </p>
+           <p className="text-xs text-muted-foreground">
+  © {new Date().getFullYear()} WashLab · Powered by Lider Technologies LTD
+</p>
           </div>
         </div>
       </footer>

@@ -16,12 +16,22 @@ export default function AuthLayout({
         {/* Logo */}
         <div className='flex items-center'>
           <Link href="/">
+            {/* Light mode logo */}
             <Image 
-              src="/assets/washlab-logo.png" 
+              src="/assets/washlab logo-light.png" 
               alt="WashLab" 
               width={150}
               height={44}
-              className="h-11 w-auto"
+              className="h-11 w-auto block dark:hidden"
+              priority
+            />
+            {/* Dark mode logo */}
+            <Image 
+              src="/assets/washlab logo-dark.png" 
+              alt="WashLab" 
+              width={150}
+              height={44}
+              className="h-11 w-auto hidden dark:block"
               priority
             />
           </Link>
@@ -61,4 +71,3 @@ export default function AuthLayout({
     </main>
   )
 }
-
