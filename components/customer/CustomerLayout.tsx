@@ -93,17 +93,17 @@ function SidebarContent({
           <Image 
             src="/assets/washlab logo-light.png" 
             alt="WashLab" 
-            width={140}
-            height={40}
-            className="h-10 w-auto block dark:hidden"
+            width={160}
+            height={48}
+            className="h-12 w-auto block dark:hidden"
             priority
           />
           <Image 
             src="/assets/washlab logo-dark.png" 
             alt="WashLab" 
-            width={140}
-            height={40}
-            className="h-10 w-auto hidden dark:block"
+            width={160}
+            height={48}
+            className="h-12 w-auto hidden dark:block"
             priority
           />
         </Link>

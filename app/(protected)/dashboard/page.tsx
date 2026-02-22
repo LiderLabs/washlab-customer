@@ -35,31 +35,25 @@ export default function DashboardPage() {
   const router = useRouter();
   const [selectedOrder, setSelectedOrder] = useState<Doc<"orders"> | null>(null);
 
-  // Get customer profile which includes order stats
   const profile = useQuery(
     api.customers.getProfile,
     isAuthenticated ? {} : "skip"
   );
 
-  // Get loyalty points
   const loyaltyPointsResult = useQuery(
     api.customers.getLoyaltyPoints,
     isAuthenticated ? {} : "skip"
   );
   const loyaltyPoints = loyaltyPointsResult ?? { points: 0, totalEarned: 0, totalRedeemed: 0 };
-  const nextRewardAt = 10; // Default reward threshold
+  const nextRewardAt = 10;
 
-  // Get recent orders (using pagination but only taking first page)
-  const {
-    results: recentOrdersPages,
-  } = usePaginatedQuery(
+  const { results: recentOrdersPages } = usePaginatedQuery(
     api.customers.getOrders,
     isAuthenticated ? {} : "skip",
     { initialNumItems: 3 }
   );
   const recentOrders = recentOrdersPages?.flat().slice(0, 3) ?? [];
 
-  // Get unread notifications count
   const unreadNotifications = useQuery(
     api.notifications.getUnreadCount,
     isAuthenticated ? {} : "skip"
@@ -70,11 +64,10 @@ export default function DashboardPage() {
     totalOrders: profile?.orderCount ?? 0,
     completedOrders: profile?.completedOrderCount ?? 0,
     pendingOrders: (profile?.orderCount ?? 0) - (profile?.completedOrderCount ?? 0),
-    totalSpent: 0, // We'd need to add this to the profile query
+    totalSpent: 0,
   };
   const progress = (loyaltyPoints.points / nextRewardAt) * 100;
 
-  // Map backend status to frontend OrderStatus type for StatusBadge
   const mapStatus = (status: string) => {
     const statusMap: Record<string, string> = {
       pending: "pending_dropoff",
@@ -90,10 +83,10 @@ export default function DashboardPage() {
   return (
     <CustomerLayout>
       <div className="space-y-6">
-        {/* Welcome Header */}
+        {/* Welcome Header — emoji removed */}
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
-            Welcome back, {userName}! 👋
+            Welcome back, {userName}!
           </h1>
           <p className="text-muted-foreground mt-2">
             Here&apos;s what&apos;s happening with your laundry
@@ -166,8 +159,7 @@ export default function DashboardPage() {
                   <p className="text-3xl font-bold">
                     {loyaltyPoints.points}
                     <span className="text-lg font-normal text-muted-foreground">
-                      {' '}
-                      / {nextRewardAt}
+                      {' '}/ {nextRewardAt}
                     </span>
                   </p>
                 </div>
@@ -187,8 +179,7 @@ export default function DashboardPage() {
                   />
                 </div>
                 <p className="text-xs text-muted-foreground mt-2">
-                  {nextRewardAt - loyaltyPoints.points} more points to unlock a
-                  free wash!
+                  {nextRewardAt - loyaltyPoints.points} more points to unlock a free wash!
                 </p>
               </div>
             </CardContent>
@@ -284,13 +275,11 @@ export default function DashboardPage() {
               </DialogHeader>
 
               <div className="space-y-6">
-                {/* Status */}
                 <div>
                   <h3 className="text-sm font-medium mb-2">Status</h3>
                   <StatusBadge status={mapStatus(selectedOrder.status) as OrderStatus} />
                 </div>
 
-                {/* Service Details */}
                 <div className="grid gap-4 sm:grid-cols-2">
                   <div>
                     <h3 className="text-sm font-medium mb-2">Service Type</h3>
@@ -316,7 +305,6 @@ export default function DashboardPage() {
                   )}
                 </div>
 
-                {/* Delivery Details */}
                 {selectedOrder.isDelivery && (
                   <div>
                     <h3 className="text-sm font-medium mb-2">Delivery Address</h3>
@@ -324,14 +312,11 @@ export default function DashboardPage() {
                       {selectedOrder.deliveryHall && <p>{selectedOrder.deliveryHall}</p>}
                       {selectedOrder.deliveryRoom && <p>Room: {selectedOrder.deliveryRoom}</p>}
                       {selectedOrder.deliveryAddress && <p>{selectedOrder.deliveryAddress}</p>}
-                      {selectedOrder.deliveryPhoneNumber && (
-                        <p>Phone: {selectedOrder.deliveryPhoneNumber}</p>
-                      )}
+                      {selectedOrder.deliveryPhoneNumber && <p>Phone: {selectedOrder.deliveryPhoneNumber}</p>}
                     </div>
                   </div>
                 )}
 
-                {/* Notes */}
                 {selectedOrder.notes && (
                   <div>
                     <h3 className="text-sm font-medium mb-2">Notes</h3>
@@ -339,7 +324,6 @@ export default function DashboardPage() {
                   </div>
                 )}
 
-                {/* Pricing */}
                 <div>
                   <h3 className="text-sm font-medium mb-2">Pricing</h3>
                   <div className="rounded-lg border p-4 space-y-2">
@@ -356,9 +340,7 @@ export default function DashboardPage() {
                     {selectedOrder.finalPrice < selectedOrder.totalPrice && (
                       <div className="flex justify-between text-sm text-green-600">
                         <span>Discount</span>
-                        <span>
-                          -₵{(selectedOrder.totalPrice - selectedOrder.finalPrice).toFixed(2)}
-                        </span>
+                        <span>-₵{(selectedOrder.totalPrice - selectedOrder.finalPrice).toFixed(2)}</span>
                       </div>
                     )}
                     <div className="flex justify-between font-bold text-lg pt-2 border-t">
@@ -368,7 +350,6 @@ export default function DashboardPage() {
                   </div>
                 </div>
 
-                {/* Timestamps */}
                 <div className="grid gap-4 sm:grid-cols-2 text-xs text-muted-foreground">
                   <div>
                     <p className="font-medium mb-1">Created</p>
