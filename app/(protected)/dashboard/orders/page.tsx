@@ -145,11 +145,6 @@ export default function OrdersPage() {
                   <SelectItem value='ready'>Ready</SelectItem>
                   <SelectItem value='completed'>Completed</SelectItem>
                   <SelectItem value='cancelled'>Cancelled</SelectItem>
-                  {/* Legacy statuses */}
-                  <SelectItem value='pending'>Pending (Legacy)</SelectItem>
-                  <SelectItem value='in_progress'>In Progress (Legacy)</SelectItem>
-                  <SelectItem value='ready_for_pickup'>Ready for Pickup (Legacy)</SelectItem>
-                  <SelectItem value='delivered'>Delivered (Legacy)</SelectItem>
                 </SelectContent>
               </Select>
 
