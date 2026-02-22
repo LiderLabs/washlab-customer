@@ -62,7 +62,6 @@ const navItems = [
   { href: '/dashboard/payments', label: 'Payments', icon: CreditCard },
   { href: '/dashboard/loyalty', label: 'Loyalty Points', icon: Award },
   { href: '/dashboard/notifications', label: 'Notifications', icon: Bell },
-  { href: '/dashboard/profile', label: 'Profile', icon: User },
 ];
 
 interface SidebarContentProps {
@@ -92,11 +91,19 @@ function SidebarContent({
       <div className="flex h-16 items-center border-b px-4">
         <Link href="/dashboard" className="flex items-center">
           <Image 
-            src="/assets/washlab-logo.png" 
+            src="/assets/washlab logo-light.png" 
             alt="WashLab" 
             width={140}
             height={40}
-            className="h-10 w-auto"
+            className="h-10 w-auto block dark:hidden"
+            priority
+          />
+          <Image 
+            src="/assets/washlab logo-dark.png" 
+            alt="WashLab" 
+            width={140}
+            height={40}
+            className="h-10 w-auto hidden dark:block"
             priority
           />
         </Link>

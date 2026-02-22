@@ -8,20 +8,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { LoyaltyTransactionTable } from "./LoyaltyTransactionTable"
 import { TransactionDetailsDialog } from "./TransactionDetailsDialog"
-import { Award, TrendingUp, Gift, Target, Loader2, History } from "lucide-react"
+import { Award, Gift, Target, Loader2, History } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 export default function CustomerLoyaltyPoints() {
   const { isAuthenticated } = useConvexAuth()
   const [selectedTransaction, setSelectedTransaction] = useState<Doc<"loyaltyTransactions"> | null>(null)
 
-  // Fetch loyalty points balance
   const loyaltyBalance = useQuery(
     api.loyalty.getBalance,
     isAuthenticated ? {} : "skip"
   )
 
-  // Fetch transactions (paginated)
   const {
     results: transactionsPages,
     status: transactionsStatus,
@@ -41,20 +39,16 @@ export default function CustomerLoyaltyPoints() {
 
   const currentPoints = loyaltyBalance?.points || 0
   const totalEarned = loyaltyBalance?.totalEarned || 0
-  const totalRedeemed = loyaltyBalance?.totalRedeemed || 0
 
-  // Calculate progress to next reward
   const currentProgress = currentPoints % 10
   const pointsUntilNextReward = 10 - currentProgress
   const progressPercentage = (currentProgress / 10) * 100
   const freeWashesEarned = Math.floor(totalEarned / 10)
 
-  // Check if they've earned a reward
   const hasEarnedReward = currentPoints >= 10 && currentProgress === 0
 
   return (
     <div className='space-y-6'>
-      {/* Header */}
       <div>
         <h1 className='text-3xl font-bold'>Loyalty Points</h1>
         <p className='text-muted-foreground mt-1'>
@@ -62,13 +56,11 @@ export default function CustomerLoyaltyPoints() {
         </p>
       </div>
 
-      {/* Stats Cards */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4'>
+      {/* Stats Cards - Total Earned removed */}
+      <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-sm font-medium'>
-              Current Balance
-            </CardTitle>
+            <CardTitle className='text-sm font-medium'>Current Balance</CardTitle>
             <Award className='h-4 w-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
@@ -77,9 +69,7 @@ export default function CustomerLoyaltyPoints() {
             ) : (
               <>
                 <div className='text-2xl font-bold'>{currentPoints}</div>
-                <p className='text-xs text-muted-foreground'>
-                  Available points
-                </p>
+                <p className='text-xs text-muted-foreground'>Available points</p>
               </>
             )}
           </CardContent>
@@ -87,28 +77,7 @@ export default function CustomerLoyaltyPoints() {
 
         <Card>
           <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-sm font-medium'>Total Earned</CardTitle>
-            <TrendingUp className='h-4 w-4 text-muted-foreground' />
-          </CardHeader>
-          <CardContent>
-            {isLoadingBalance ? (
-              <Loader2 className='h-6 w-6 animate-spin text-muted-foreground' />
-            ) : (
-              <>
-                <div className='text-2xl font-bold text-green-600 dark:text-green-400'>
-                  +{totalEarned}
-                </div>
-                <p className='text-xs text-muted-foreground'>Lifetime earned</p>
-              </>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className='flex flex-row items-center justify-between space-y-0 pb-2'>
-            <CardTitle className='text-sm font-medium'>
-              Free Washes Earned
-            </CardTitle>
+            <CardTitle className='text-sm font-medium'>Free Washes Earned</CardTitle>
             <Gift className='h-4 w-4 text-muted-foreground' />
           </CardHeader>
           <CardContent>
@@ -137,9 +106,7 @@ export default function CustomerLoyaltyPoints() {
                   {hasEarnedReward ? "🎉 Ready!" : pointsUntilNextReward}
                 </div>
                 <p className='text-xs text-muted-foreground'>
-                  {hasEarnedReward
-                    ? "Free wash available"
-                    : "points to next reward"}
+                  {hasEarnedReward ? "Free wash available" : "points to next reward"}
                 </p>
               </>
             )}
@@ -163,13 +130,9 @@ export default function CustomerLoyaltyPoints() {
               <div className='space-y-2'>
                 <div className='flex items-center justify-between text-sm'>
                   <span className='font-medium'>
-                    {hasEarnedReward
-                      ? "🎉 Free wash earned!"
-                      : `${pointsUntilNextReward} points to go`}
+                    {hasEarnedReward ? "🎉 Free wash earned!" : `${pointsUntilNextReward} points to go`}
                   </span>
-                  <span className='text-muted-foreground'>
-                    {currentProgress}/10 points
-                  </span>
+                  <span className='text-muted-foreground'>{currentProgress}/10 points</span>
                 </div>
                 <div className='relative h-4 w-full overflow-hidden rounded-full bg-muted'>
                   <div
@@ -179,18 +142,14 @@ export default function CustomerLoyaltyPoints() {
                         ? "bg-gradient-to-r from-green-500 to-emerald-500"
                         : "bg-gradient-to-r from-purple-500 to-pink-500"
                     )}
-                    style={{
-                      width: `${hasEarnedReward ? 100 : progressPercentage}%`,
-                    }}
+                    style={{ width: `${hasEarnedReward ? 100 : progressPercentage}%` }}
                   />
                 </div>
               </div>
-
               {hasEarnedReward && (
                 <div className='rounded-lg bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800 p-4'>
                   <p className='text-sm font-medium text-green-900 dark:text-green-100'>
-                    🎉 Congratulations! You&apos;ve earned a free wash! Redeem
-                    it on your next order.
+                    🎉 Congratulations! You&apos;ve earned a free wash! Redeem it on your next order.
                   </p>
                 </div>
               )}
@@ -206,9 +165,7 @@ export default function CustomerLoyaltyPoints() {
             <History className='h-5 w-5' />
             Transaction History
           </CardTitle>
-          <CardDescription>
-            View all your loyalty point transactions
-          </CardDescription>
+          <CardDescription>View all your loyalty point transactions</CardDescription>
         </CardHeader>
         <CardContent>
           <LoyaltyTransactionTable
@@ -216,7 +173,6 @@ export default function CustomerLoyaltyPoints() {
             isLoading={isLoadingTransactions}
             onViewDetails={setSelectedTransaction}
           />
-
           {hasMoreTransactions && (
             <div className='flex justify-center mt-6'>
               <Button
@@ -238,7 +194,6 @@ export default function CustomerLoyaltyPoints() {
         </CardContent>
       </Card>
 
-      {/* Transaction Details Dialog */}
       {selectedTransaction && (
         <TransactionDetailsDialog
           open={!!selectedTransaction}
@@ -249,4 +204,3 @@ export default function CustomerLoyaltyPoints() {
     </div>
   )
 }
-

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -306,19 +307,19 @@ export default function OrdersPage() {
                 <div className='rounded-lg border p-4 space-y-2'>
                   <div className='flex justify-between text-sm'>
                     <span>Base Price</span>
-                    <span>₵{selectedOrder.basePrice.toFixed(2)}</span>
+                    <span>â‚µ{selectedOrder.basePrice.toFixed(2)}</span>
                   </div>
                   {selectedOrder.deliveryFee > 0 && (
                     <div className='flex justify-between text-sm'>
                       <span>Delivery Fee</span>
-                      <span>₵{selectedOrder.deliveryFee.toFixed(2)}</span>
+                      <span>â‚µ{selectedOrder.deliveryFee.toFixed(2)}</span>
                     </div>
                   )}
                   {selectedOrder.finalPrice < selectedOrder.totalPrice && (
                     <div className='flex justify-between text-sm text-green-600'>
                       <span>Discount</span>
                       <span>
-                        -₵
+                        -â‚µ
                         {(
                           selectedOrder.totalPrice - selectedOrder.finalPrice
                         ).toFixed(2)}
@@ -327,7 +328,7 @@ export default function OrdersPage() {
                   )}
                   <div className='flex justify-between font-bold text-lg pt-2 border-t'>
                     <span>Total</span>
-                    <span>₵{selectedOrder.finalPrice.toFixed(2)}</span>
+                    <span>â‚µ{selectedOrder.finalPrice.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
