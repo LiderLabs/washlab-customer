@@ -11,8 +11,8 @@
   "dependencies": {
     "@clerk/clerk-react": "^5.59.3",
     "@clerk/nextjs": "^6.36.5",
-    "@devlider001/washlab-backend": "^1.1.5",
     "@hookform/resolvers": "^3.10.0",
+    "@jordan6699/washlab-backend": "1.1.52",
     "@radix-ui/react-accordion": "^1.2.11",
     "@radix-ui/react-alert-dialog": "^1.1.14",
     "@radix-ui/react-aspect-ratio": "^1.1.7",

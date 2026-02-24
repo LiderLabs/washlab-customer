@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useQuery, useMutation, useConvexAuth } from 'convex/react';
-import { api } from '@devlider001/washlab-backend/api';
+import { api } from '@jordan6699/washlab-backend/api';
 import CustomerLayout from '@/components/customer/CustomerLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Doc, Id } from '@devlider001/washlab-backend/dataModel';
+import { Doc, Id } from '@jordan6699/washlab-backend/dataModel';
 
 export default function NotificationsPage() {
   const { isAuthenticated } = useConvexAuth();

@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { useQuery, useConvexAuth } from 'convex/react';
-import { api } from '@devlider001/washlab-backend/api';
+import { api } from '@jordan6699/washlab-backend/api';
 import CustomerLayout from '@/components/customer/CustomerLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,7 +29,7 @@ import {
 import { useRouter } from 'next/navigation';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { usePaginatedQuery } from 'convex/react';
-import { Doc } from '@devlider001/washlab-backend/dataModel';
+import { Doc } from '@jordan6699/washlab-backend/dataModel';
 
 export default function OrdersPage() {
   const router = useRouter();
