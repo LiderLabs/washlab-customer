@@ -2,47 +2,63 @@
 
 import { useState, useEffect } from 'react';
 import { useUser } from '@clerk/nextjs';
-import { useMutation, useConvexAuth } from 'convex/react';
+import { useMutation, useQuery, useConvexAuth } from 'convex/react';
 import { api } from '@jordan6699/washlab-backend/api';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Phone, User, CheckCircle2, Sparkles } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Loader2, Phone, User, CheckCircle2, Sparkles, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
+import { Id } from '@jordan6699/washlab-backend/dataModel';
 
 export default function CompleteProfilePage() {
   const { user, isLoaded: isClerkLoaded } = useUser();
   const { isAuthenticated } = useConvexAuth();
   const router = useRouter();
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     phoneNumber: '',
+    branchId: '',
   });
 
-  // Get phone number from Clerk metadata if available
+  const branches = useQuery(api.branches.getActive, {}) ?? [];
+
+  // Pre-fill name and phone from Clerk metadata
   useEffect(() => {
     if (user) {
       const clerkPhone = user.unsafeMetadata?.phoneNumber as string;
-      setFormData({
+      setFormData(prev => ({
+        ...prev,
         name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
         phoneNumber: clerkPhone || '',
-      });
+      }));
     }
   }, [user]);
 
-  // Register mutation
   const register = useMutation(api.customers.register);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isAuthenticated) {
       toast.error('Please wait for authentication to complete');
+      return;
+    }
+
+    if (!formData.branchId) {
+      toast.error('Please select your branch');
       return;
     }
 
@@ -56,23 +72,21 @@ export default function CompleteProfilePage() {
     setIsLoading(true);
 
     try {
-      await register({
-        name: formData.name,
-        phoneNumber: formData.phoneNumber,
-        email: user?.primaryEmailAddress?.emailAddress,
-      });
-
+      await (register as any)({
+  name: formData.name,
+  phoneNumber: formData.phoneNumber,
+  email: user?.primaryEmailAddress?.emailAddress,
+  preferredBranchId: formData.branchId,
+});
       setIsComplete(true);
       toast.success('Profile completed successfully!');
-      
-      // Redirect to dashboard
+
       setTimeout(() => {
         router.push('/dashboard');
       }, 1500);
     } catch (err: any) {
       console.error('Registration error:', err);
-      
-      // Check if user already exists
+
       if (err.message?.includes('already registered')) {
         toast.info('Account already set up! Redirecting...');
         setTimeout(() => {
@@ -80,7 +94,7 @@ export default function CompleteProfilePage() {
         }, 1000);
         return;
       }
-      
+
       toast.error(err.message || 'Failed to complete profile');
     } finally {
       setIsLoading(false);
@@ -138,6 +152,7 @@ export default function CompleteProfilePage() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Name */}
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <div className="relative">
@@ -154,6 +169,7 @@ export default function CompleteProfilePage() {
               </div>
             </div>
 
+            {/* Phone */}
             <div className="space-y-2">
               <Label htmlFor="phoneNumber">Phone Number</Label>
               <div className="relative">
@@ -173,8 +189,38 @@ export default function CompleteProfilePage() {
               </p>
             </div>
 
+            {/* Branch */}
+            <div className="space-y-2">
+              <Label htmlFor="branch">Your Branch <span className="text-destructive">*</span></Label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground z-10 pointer-events-none" />
+                <Select
+                  value={formData.branchId}
+                  onValueChange={(value) => setFormData({ ...formData, branchId: value })}
+                >
+                  <SelectTrigger className="pl-10">
+                    <SelectValue placeholder="Select your nearest branch" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {branches.map((branch: any) => (
+                      <SelectItem key={branch._id} value={branch._id}>
+                        {branch.name} — {branch.city}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Select the WashLab branch closest to you
+              </p>
+            </div>
+
             <div className="pt-2">
-              <Button type="submit" className="w-full" disabled={isLoading || !isAuthenticated}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLoading || !isAuthenticated || !formData.branchId}
+              >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -202,4 +248,3 @@ export default function CompleteProfilePage() {
     </div>
   );
 }
-

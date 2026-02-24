@@ -110,6 +110,9 @@ function OrderPageContent() {
   const [copied, setCopied] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
+  const [voucherCode, setVoucherCode] = useState('');
+  const [voucherResult, setVoucherResult] = useState<null | { valid: boolean; discountAmount?: number; finalPrice?: number; voucher?: { code: string; name?: string; discountType: string; discountValue: number }; error?: string }>(null);
+  const [voucherLoading, setVoucherLoading] = useState(false);
 
   const [serviceType, setServiceType] = useState<ServiceType | null>(null);
   const [clothesCount, setClothesCount] = useState<number>(0);
@@ -127,7 +130,11 @@ function OrderPageContent() {
 
   const branches = (useQuery(api.branches.getActive, {}) ?? []) as Branch[];
   const dbServices = useQuery(api.services.getActive) ?? [];
-  const createOrder = useMutation(api.orders.createOnline);
+  const validateVoucher = useQuery(
+    (api as any).vouchers.validate,
+    voucherCode.length >= 3 && branchId ? { code: voucherCode.toUpperCase(), orderTotal: 1, branchId: branchId as any } : "skip"
+  );
+    const createOrder = useMutation(api.orders.createOnline);
 
   useEffect(() => {
     if (convexUser && isAuthenticated) {
@@ -205,6 +212,18 @@ function OrderPageContent() {
     }
   };
 
+  const handleApplyVoucher = () => {
+    if (!voucherCode.trim()) return;
+    if (validateVoucher === undefined) { toast.info('Checking voucher...'); return; }
+    if (validateVoucher?.valid) {
+      setVoucherResult(validateVoucher as any);
+      if ((validateVoucher as any).voucher?.discountType === 'free_wash') toast.success('Free wash voucher applied!');
+      else toast.success(`Voucher applied! You save GHS ${(validateVoucher as any).discountAmount?.toFixed(2)}`);
+    } else {
+      setVoucherResult(null);
+      toast.error((validateVoucher as any)?.error || 'Invalid voucher');
+    }
+  };
   const handleSubmitOrder = async () => {
     if (!serviceType || !branchId) { toast.error('Please complete all required fields'); return; }
     setIsSubmitting(true);
@@ -225,6 +244,7 @@ function OrderPageContent() {
         deliveryHall: isDelivery ? customerInfo.hall : undefined,
         deliveryRoom: isDelivery ? customerInfo.room : undefined,
         notes: customerInfo.notes || undefined,
+        voucherCode: voucherResult?.valid ? voucherCode.trim().toUpperCase() : undefined,
       };
       const result = await createOrder(orderData as any);
       setOrderNumber(result.orderNumber);
@@ -476,7 +496,6 @@ function OrderPageContent() {
                         <Label htmlFor="separate-disclaimer" className="text-sm cursor-pointer leading-relaxed">
                           I understand that washing whites separately is counted as an{' '}
                           <strong>extra load</strong> and will <strong>incur an additional charge</strong>{' '}
-                          at the per-load rate. The attendant will confirm the final price at check-in.
                         </Label>
                       </div>
                     )}
@@ -655,6 +674,29 @@ function OrderPageContent() {
                       <span className="text-sm font-medium text-right">{value}</span>
                     </div>
                   ))}
+                </div>
+
+                {/* Voucher code */}
+                <div className="mb-5 p-4 rounded-xl border border-border bg-muted/30">
+                  <p className="text-sm font-medium mb-2">Have a voucher code?</p>
+                  {voucherResult?.valid ? (
+                    <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
+                      <div>
+                        <p className="text-sm font-semibold text-green-700 dark:text-green-400">{voucherResult.voucher?.code} applied!</p>
+                        <p className="text-xs text-muted-foreground">
+                          {voucherResult.voucher?.discountType === 'free_wash' ? 'Free wash - no payment needed at station' : `-GHS ${voucherResult.discountAmount?.toFixed(2)} discount`}
+                        </p>
+                      </div>
+                      <button onClick={() => { setVoucherResult(null); setVoucherCode(''); }} className="text-xs text-muted-foreground underline hover:text-foreground">Remove</button>
+                    </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Input value={voucherCode} onChange={(e) => setVoucherCode(e.target.value.toUpperCase())} onKeyDown={(e) => e.key === 'Enter' && handleApplyVoucher()} placeholder="Enter voucher code" className="flex-1 uppercase text-sm" />
+                      <Button type="button" variant="outline" onClick={handleApplyVoucher} disabled={!voucherCode.trim()} size="sm" className="px-4">
+                        Apply
+                      </Button>
+                    </div>
+                  )}
                 </div>
 
                 {/* Estimated total */}

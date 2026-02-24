@@ -1,8 +1,8 @@
 "use client"
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { Logo } from './Logo';
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { Logo } from './Logo'
 import { Menu, X } from "lucide-react"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
@@ -25,11 +25,15 @@ export const Navbar = () => {
   const { user, isLoaded } = useUser()
 
   useEffect(() => {
-
     const handleScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener("scroll", handleScroll)
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsOpen(false)
+  }, [pathname])
 
   const navLinks = [
     { href: "/order", label: "Place Order" },
@@ -68,11 +72,9 @@ export const Navbar = () => {
               </Link>
             ))}
 
-
             <div className='ml-2'>
               <ThemeSwitcher />
             </div>
-
 
             {isLoaded && user ? (
               <Link
@@ -108,6 +110,7 @@ export const Navbar = () => {
           {/* Mobile: User bubble + Menu */}
           <div className='flex md:hidden items-center gap-2'>
             <ThemeSwitcher />
+
             {isLoaded && user && (
               <Link
                 href='/dashboard'
@@ -118,11 +121,17 @@ export const Navbar = () => {
                 )}
               </Link>
             )}
+
             <button
               className='p-2 rounded-lg hover:bg-muted transition-colors'
               onClick={() => setIsOpen(!isOpen)}
+              aria-label="Toggle menu"
             >
-
+              {isOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
             </button>
           </div>
         </div>
@@ -146,20 +155,23 @@ export const Navbar = () => {
                   {link.label}
                 </Link>
               ))}
-              {isLoaded && !user && (
-                <Link
-                  href='/dashboard'
-                  className={cn(
-                    "px-4 py-3 rounded-xl transition-colors font-medium",
-                    pathname === "/dashboard"
-                      ? "bg-primary text-primary-foreground"
-                      : "text-foreground hover:bg-muted"
-                  )}
-                  onClick={() => setIsOpen(false)}
-                >
-                  Account
-                </Link>
-              )}
+
+              <Link
+                href='/dashboard'
+                className={cn(
+                  "px-4 py-3 rounded-xl transition-colors font-medium",
+                  pathname === "/dashboard"
+                    ? "bg-primary text-primary-foreground"
+                    : "text-foreground hover:bg-muted"
+                )}
+                onClick={() => setIsOpen(false)}
+              >
+                Account
+              </Link>
+
+              <div className="px-4 py-2">
+                <ThemeSwitcher />
+              </div>
             </div>
           </div>
         )}
@@ -167,4 +179,3 @@ export const Navbar = () => {
     </nav>
   )
 }
-
