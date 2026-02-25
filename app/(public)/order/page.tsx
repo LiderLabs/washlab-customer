@@ -144,6 +144,10 @@ function OrderPageContent() {
         phone: convexUser.phoneNumber || '',
         email: convexUser.email || clerkUser?.emailAddresses?.[0]?.emailAddress || '',
       }));
+      const prefBranch = (convexUser as any).preferredBranchId;
+      if (prefBranch && !branchId) {
+        setBranchId(prefBranch);
+      }
     }
   }, [convexUser, clerkUser, isAuthenticated]);
 
