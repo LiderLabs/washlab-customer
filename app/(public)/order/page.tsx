@@ -715,7 +715,7 @@ function OrderPageContent() {
                       <span className="text-base font-semibold">Estimated Total</span>
                       {selectedDbService && selectedDbService.pricingType !== 'per_kg' && (
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {estimatedLoads} cycle{estimatedLoads !== 1 ? 's' : ''} × ₵{selectedDbService.basePrice.toFixed(2)}/cycle
+                          {estimatedLoads} cycle{estimatedLoads !== 1 ? 's' : ''} × ₵{selectedDbService.basePrice.toFixed(2)}/cycle{extraLoadsForWhites > 0 ? ' (incl. +1 whites)' : ''}
                         </p>
                       )}
                     </div>
