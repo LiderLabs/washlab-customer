@@ -242,6 +242,7 @@ function OrderPageContent() {
         itemCount: clothesCount,
         estimatedLoads,
         whitesSeparate: hasWhites ? washSeparately : false,
+        mixWithColors: hasWhites ? !washSeparately : false,
         isDelivery,
         deliveryAddress: isDelivery ? customerInfo.deliveryAddress : undefined,
         deliveryPhoneNumber: isDelivery ? (customerInfo.deliveryPhone || customerInfo.phone) : undefined,
