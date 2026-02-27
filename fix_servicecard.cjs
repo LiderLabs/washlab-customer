@@ -1,12 +1,15 @@
-"use client"
+﻿const fs = require("fs");
+
+const newCard = `"use client"
 
 import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
+import Image from 'next/image';
 
 const SERVICE_IMAGES: Record<string, string> = {
-  wash_and_dry: '/assets/laundry-hero-1.jpg',
-  wash_only: '/assets/stacked-clothes.jpg',
-  dry_only: '/assets/laundry-hero-2.jpg',
+  wash_and_dry: '/laundry-hero-1.jpg',
+  wash_only: '/stacked-clothes.jpg',
+  dry_only: '/laundry-hero-2.jpg',
 };
 
 interface ServiceCardProps {
@@ -43,10 +46,11 @@ export const ServiceCard = ({
     >
       {image ? (
         <div className="relative w-full h-40 overflow-hidden">
-          <img
+          <Image
             src={image}
             alt={title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            fill
+            className="object-cover transition-transform duration-300 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
         </div>
@@ -82,3 +86,7 @@ export const ServiceCard = ({
     </button>
   );
 };
+`;
+
+fs.writeFileSync("components/ServiceCard.tsx", newCard, "utf8");
+console.log("Done");

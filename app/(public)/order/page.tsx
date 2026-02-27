@@ -356,7 +356,10 @@ function OrderPageContent() {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {(dbServices as any[]).map(service => {
+                  {([...dbServices as any[]].sort((a, b) => {
+                    const order: Record<string, number> = { wash_and_dry: 0, wash_only: 1, dry_only: 2 };
+                    return (order[a.code] ?? 99) - (order[b.code] ?? 99);
+                  })).map(service => {
                     const getIcon = (code: string) => {
                       if (code.includes('wash') && code.includes('dry')) return Sparkles;
                       if (code.includes('wash')) return Droplets;
@@ -371,6 +374,7 @@ function OrderPageContent() {
                         description={service.description || ''}
                         isSelected={serviceType === service.code}
                         onClick={() => setServiceType(service.code as ServiceType)}
+                        code={service.code}
                         price={service.pricingType === 'per_kg'
                           ? `₵${service.basePrice.toFixed(2)}/kg`
                           : `₵${service.basePrice.toFixed(2)}/load`}
