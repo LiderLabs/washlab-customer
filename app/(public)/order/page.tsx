@@ -229,7 +229,7 @@ function OrderPageContent() {
     if (validateVoucher?.valid) {
       setVoucherResult(validateVoucher as any);
       if ((validateVoucher as any).voucher?.discountType === 'free_wash') toast.success('Free wash voucher applied!');
-      else toast.success(`Voucher applied! You save GHS ${(validateVoucher as any).discountAmount?.toFixed(2)}`);
+      else toast.success(`Voucher applied! You save GHS ${((validateVoucher as any)?.discountAmount ?? 0).toFixed(2)}`);
     } else {
       setVoucherResult(null);
       toast.error((validateVoucher as any)?.error || 'Invalid voucher');
@@ -421,10 +421,10 @@ function OrderPageContent() {
                         onClick={() => setServiceType(service.code as ServiceType)}
                         code={service.code}
                         price={service.price != null
-                          ? `₵${service.price.toFixed(2)}`
+                          ? `₵${(service.price ?? 0).toFixed(2)}`
                           : service.pricingType === 'per_kg'
-                          ? `₵${service.basePrice.toFixed(2)}/kg`
-                          : `₵${service.basePrice.toFixed(2)}/load`}
+                          ? `₵${(service.basePrice ?? 0).toFixed(2)}/kg`
+                          : `₵${(service.basePrice ?? 0).toFixed(2)}/load`}
                       />
                     );
                   })}
@@ -491,7 +491,7 @@ function OrderPageContent() {
                       <Info className="w-4 h-4 text-primary flex-shrink-0" />
                       Estimated total weight
                     </div>
-                    <span className="font-bold text-primary text-lg">~{estimatedWeight.toFixed(1)} kg</span>
+                    <span className="font-bold text-primary text-lg">~{(estimatedWeight ?? 0).toFixed(1)} kg</span>
                   </div>
                 )}
               </div>
@@ -693,7 +693,7 @@ function OrderPageContent() {
                       label: item.label,
                       value: `${heavyItems[item.key]} ${item.emoji} (~${(heavyItems[item.key] * item.weightPerItem).toFixed(1)} kg)`,
                     })),
-                    { label: 'Est. Total Weight', value: `~${estimatedWeight.toFixed(1)} kg` },
+                    { label: 'Est. Total Weight', value: `~${(estimatedWeight ?? 0).toFixed(1)} kg` },
                     // Only show loads row for per_load pricing
                     ...(selectedDbService?.pricingType !== 'per_kg' ? [{
                       label: 'Est. Wash Cycles',
@@ -723,7 +723,7 @@ function OrderPageContent() {
                       <div>
                         <p className="text-sm font-semibold text-green-700 dark:text-green-400">{voucherResult.voucher?.code} applied!</p>
                         <p className="text-xs text-muted-foreground">
-                          {voucherResult.voucher?.discountType === 'free_wash' ? 'Free wash - no payment needed at station' : `-GHS ${voucherResult.discountAmount?.toFixed(2)} discount`}
+                          {voucherResult.voucher?.discountType === 'free_wash' ? 'Free wash - no payment needed at station' : `-GHS ${(voucherResult?.discountAmount ?? 0).toFixed(2)} discount`}
                         </p>
                       </div>
                       <button onClick={() => { setVoucherResult(null); setVoucherCode(''); }} className="text-xs text-muted-foreground underline hover:text-foreground">Remove</button>
@@ -745,12 +745,12 @@ function OrderPageContent() {
                       <span className="text-base font-semibold">Estimated Total</span>
                       {selectedDbService && selectedDbService.pricingType !== 'per_kg' && (
                         <p className="text-xs text-muted-foreground mt-0.5">
-                          {estimatedLoads} cycle{estimatedLoads !== 1 ? 's' : ''} × ₵{selectedDbService.basePrice.toFixed(2)}/cycle{extraLoadsForWhites > 0 ? ' (incl. +1 whites)' : ''}
+                          {estimatedLoads} cycle{estimatedLoads !== 1 ? 's' : ''} × ₵{(selectedDbService.basePrice ?? 0).toFixed(2)}/cycle{extraLoadsForWhites > 0 ? ' (incl. +1 whites)' : ''}
                         </p>
                       )}
                     </div>
                     <span className="text-2xl font-display font-bold text-gradient">
-                      ₵{estimatedPrice.toFixed(2)}
+                      ₵{(estimatedPrice ?? 0).toFixed(2)}
                     </span>
                   </div>
                 </div>
