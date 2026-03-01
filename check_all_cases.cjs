@@ -1,6 +1,4 @@
 ﻿const fs = require("fs");
 const src = fs.readFileSync("app/(public)/order/page.tsx", "utf8");
-
-// Check step 0 branch click handler
-const idx = src.indexOf("Step 0: Branch Selection");
+const idx = src.indexOf("case 0:");
 console.log(JSON.stringify(src.substring(idx, idx + 600)));

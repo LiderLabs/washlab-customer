@@ -200,14 +200,15 @@ function OrderPageContent() {
 
   const canProceed = () => {
     switch (currentStep) {
-      case 0: return serviceType !== null;
-      case 1: return clothesCount > 0;
-      case 2:
+      case 0: return branchId !== '';
+      case 1: return serviceType !== null;
+      case 2: return clothesCount > 0;
+      case 3:
         if (hasWhites === null) return false;
         if (hasWhites === false) return true;
         return washSeparately ? separateDisclaimer : mixDisclaimer;
-      case 3: return branchId !== '';
-      case 4:
+      case 4: return true;
+      case 5:
         if (isAuthenticated && convexUser) return true;
         return !!(customerInfo.phone && customerInfo.name && customerInfo.email && customerInfo.hall && customerInfo.room);
       default: return true;
