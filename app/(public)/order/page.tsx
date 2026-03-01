@@ -161,7 +161,8 @@ function OrderPageContent() {
 
   useEffect(() => {
     if ((dbServices as any[]).length > 0 && !serviceType) {
-      setServiceType((dbServices as any[])[0].code as ServiceType);
+      const washAndDry = (dbServices as any[]).find((s: any) => s.code === "wash_and_dry");
+      setServiceType((washAndDry || (dbServices as any[])[0]).code as ServiceType);
     }
   }, [dbServices, serviceType]);
 
