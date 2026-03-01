@@ -39,7 +39,7 @@ import {
 import { toast } from 'sonner';
 import { Id } from '@jordan6699/washlab-backend/dataModel';
 
-const STEPS = ['Service', 'Clothes', 'Whites', 'Branch & Delivery', 'Details', 'Summary'];
+const STEPS = ['Branch', 'Service', 'Clothes', 'Whites', 'Delivery', 'Details', 'Summary'];
 
 // ── Heavy item definitions ────────────────────────────────────────────────────
 const HEAVY_ITEMS = [
@@ -122,6 +122,7 @@ function OrderPageContent() {
   const [mixDisclaimer, setMixDisclaimer] = useState(false);
   const [separateDisclaimer, setSeparateDisclaimer] = useState(false);
   const [branchId, setBranchId] = useState<string>('');
+  const [branchSkipped, setBranchSkipped] = useState(false);
   const [isDelivery, setIsDelivery] = useState(false);
   const [customerInfo, setCustomerInfo] = useState({
     phone: '', name: '', email: '', hall: '', room: '',
@@ -129,7 +130,11 @@ function OrderPageContent() {
   });
 
   const branches = (useQuery(api.branches.getActive, {}) ?? []) as Branch[];
-  const dbServices = useQuery(api.services.getActive) ?? [];
+  const customerProfile = useQuery((api as any).customers.getProfile, isAuthenticated ? {} : "skip");
+  const dbServices = useQuery(
+    (api as any).admin.getBranchServicesPublic,
+    branchId ? { branchId: branchId as any } : "skip"
+  ) ?? [];
   const validateVoucher = useQuery(
     (api as any).vouchers.validate,
     voucherCode.length >= 3 && branchId ? { code: voucherCode.toUpperCase(), orderTotal: 1, branchId: branchId as any } : "skip"
@@ -265,6 +270,15 @@ function OrderPageContent() {
 
   const handleBack = () => { if (currentStep > 0) setCurrentStep(currentStep - 1); };
 
+  // Auto-skip branch step if customer has saved branch
+  useEffect(() => {
+    if (customerProfile?.branchId && !branchSkipped) {
+      setBranchId(customerProfile.branchId);
+      setBranchSkipped(true);
+      if (currentStep === 0) setCurrentStep(1);
+    }
+  }, [customerProfile, branchSkipped, currentStep]);
+
   const copyOrderCode = () => {
     if (orderNumber) {
       navigator.clipboard.writeText(orderNumber);
@@ -342,8 +356,36 @@ function OrderPageContent() {
 
         <div className="bg-card rounded-2xl border border-border p-4 sm:p-6 md:p-8 min-h-[400px]">
 
-          {/* Step 0: Service */}
+          {/* Step 0: Branch Selection */}
           {currentStep === 0 && (
+            <div className="animate-fade-in">
+              <h2 className="text-lg sm:text-xl font-display font-semibold mb-2">Choose Your Branch</h2>
+              <p className="text-sm text-muted-foreground mb-6">Select the WashLab location nearest to you</p>
+              {!branches || branches.length === 0 ? (
+                <div className="text-center py-8">
+                  <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-muted-foreground" />
+                  <p className="text-muted-foreground">Loading branches...</p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto">
+                  {branches.map((branch: Branch) => (
+                    <button
+                      key={branch._id}
+                      onClick={() => { setBranchId(branch._id); setCurrentStep(1); }}
+                      className={`p-5 rounded-2xl border-2 text-left transition-all hover:border-primary hover:bg-primary/5 ${branchId === branch._id ? "border-primary bg-primary/5" : "border-border bg-card"}`}
+                    >
+                      <p className="font-semibold text-foreground">{branch.name}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{branch.address}, {branch.city}</p>
+
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step 1: Service */}
+          {currentStep === 1 && (
             <div className="animate-fade-in">
               <h2 className="text-lg sm:text-xl font-display font-semibold mb-4 sm:mb-6">Select Your Service</h2>
               {dbServices === undefined ? (
@@ -377,7 +419,9 @@ function OrderPageContent() {
                         isSelected={serviceType === service.code}
                         onClick={() => setServiceType(service.code as ServiceType)}
                         code={service.code}
-                        price={service.pricingType === 'per_kg'
+                        price={service.price != null
+                          ? `₵${service.price.toFixed(2)}`
+                          : service.pricingType === 'per_kg'
                           ? `₵${service.basePrice.toFixed(2)}/kg`
                           : `₵${service.basePrice.toFixed(2)}/load`}
                       />
@@ -389,7 +433,7 @@ function OrderPageContent() {
           )}
 
           {/* Step 1: Clothes + Heavy Items */}
-          {currentStep === 1 && (
+          {currentStep === 2 && (
             <div className="animate-fade-in">
               <h2 className="text-xl font-display font-semibold mb-1">How Many Clothes?</h2>
               <p className="text-sm text-muted-foreground mb-6">
@@ -454,7 +498,7 @@ function OrderPageContent() {
           )}
 
           {/* Step 2: Whites */}
-          {currentStep === 2 && (
+          {currentStep === 3 && (
             <div className="animate-fade-in">
               <h2 className="text-lg sm:text-xl font-display font-semibold mb-4 sm:mb-6">Do You Have Whites?</h2>
               <div className="max-w-md mx-auto space-y-6">
@@ -531,26 +575,10 @@ function OrderPageContent() {
           )}
 
           {/* Step 3: Branch & Delivery */}
-          {currentStep === 3 && (
+          {currentStep === 4 && (
             <div className="animate-fade-in">
-              <h2 className="text-lg sm:text-xl font-display font-semibold mb-4 sm:mb-6">Select Branch & Delivery</h2>
+              <h2 className="text-lg sm:text-xl font-display font-semibold mb-4 sm:mb-6">Delivery Option</h2>
               <div className="max-w-2xl mx-auto space-y-6">
-                <div>
-                  <Label htmlFor="branch">Select Branch *</Label>
-                  <Select value={branchId} onValueChange={setBranchId}>
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Choose a branch" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {branches.map((branch: Branch) => (
-                        <SelectItem key={branch._id} value={branch._id}>
-                          {branch.name} - {branch.city}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground mt-1">Where will you drop off your clothes?</p>
-                </div>
                 <div className="space-y-3">
                   <Label>Delivery Option</Label>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -579,7 +607,7 @@ function OrderPageContent() {
           )}
 
           {/* Step 4: Customer Details */}
-          {currentStep === 4 && (
+          {currentStep === 5 && (
             <div className="animate-fade-in">
               <h2 className="text-lg sm:text-xl font-display font-semibold mb-4 sm:mb-6">Your Details</h2>
               <div className="max-w-md mx-auto space-y-4">
@@ -635,7 +663,7 @@ function OrderPageContent() {
           )}
 
           {/* Step 5: Summary */}
-          {currentStep === 5 && (
+          {currentStep === 6 && (
             <div className="animate-fade-in">
               <h2 className="text-lg sm:text-xl font-display font-semibold mb-2">Order Summary</h2>
               <p className="text-sm text-muted-foreground mb-5">Review everything before placing your order.</p>
@@ -743,7 +771,7 @@ function OrderPageContent() {
 
         {/* Navigation */}
         <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 sm:gap-0 mt-8">
-          <Button variant="outline" onClick={handleBack} disabled={currentStep === 0 || isSubmitting} className="w-full sm:w-auto">
+          <Button variant="outline" onClick={handleBack} disabled={currentStep === 1 || isSubmitting} className="w-full sm:w-auto">
             <ChevronLeft className="w-4 h-4" /> Back
           </Button>
           <Button onClick={handleNext} disabled={!canProceed() || isSubmitting} className="w-full sm:w-auto">

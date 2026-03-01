@@ -1,4 +1,6 @@
-'use client';
+﻿const fs = require("fs");
+
+const newPricingPage = `'use client';
 
 import { useState } from 'react';
 import Link from 'next/link';
@@ -92,7 +94,7 @@ export default function PricingPage() {
                   return (
                     <div
                       key={service._id}
-                      className={`relative bg-card rounded-2xl p-6 sm:p-8 border ${isFeatured ? 'border-primary shadow-lg shadow-primary/20' : 'border-border'}`}
+                      className={\`relative bg-card rounded-2xl p-6 sm:p-8 border \${isFeatured ? 'border-primary shadow-lg shadow-primary/20' : 'border-border'}\`}
                     >
                       {isFeatured && (
                         <div className="absolute -top-3 left-1/2 -translate-x-1/2">
@@ -127,3 +129,7 @@ export default function PricingPage() {
     </div>
   );
 }
+`;
+
+fs.writeFileSync("app/(public)/pricing/page.tsx", newPricingPage, "utf8");
+console.log("Pricing page rewritten:", newPricingPage.includes("getBranchServicesPublic"));
