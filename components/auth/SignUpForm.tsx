@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useSignUp } from '@clerk/nextjs'
+import { useSignUp, useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
 import { useMutation } from 'convex/react'
 import { api } from '@jordan6699/washlab-backend/api'
@@ -24,6 +24,7 @@ interface SignUpFormData {
 
 export default function SignUpForm() {
     const { isLoaded, signUp, setActive } = useSignUp()
+    const { user: clerkUserObj } = useUser()
     const router = useRouter()
     
     // Convex mutations: register (name/email/phone) and updateProfile to save phone after verification
@@ -169,7 +170,9 @@ export default function SignUpForm() {
                 const phoneDigits = formData.phoneNumber.replace(/\D/g, '')
                 // Save phone to Clerk unsafeMetadata so complete-profile can pre-fill it
                 try {
-                    await signUp.update({ unsafeMetadata: { phoneNumber: phoneDigits } })
+                    if (clerkUserObj) {
+                        await clerkUserObj.update({ unsafeMetadata: { phoneNumber: phoneDigits } })
+                    }
                 } catch (metaErr) {
                     console.error('Failed to save phone to metadata:', metaErr)
                 }
