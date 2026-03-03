@@ -687,8 +687,7 @@ function OrderPageContent() {
                   <p className="text-sm font-semibold text-warning">Prices may differ at the station</p>
                   <p className="text-xs text-muted-foreground mt-0.5">
                     All estimates below are based on the information you've entered. Your clothes will be
-                    physically weighed at check-in and the final price confirmed then. The amount shown
-                    here is a guide only.
+                    physically weighed at check-in and the final price confirmed.
                   </p>
                 </div>
               </div>
@@ -698,11 +697,11 @@ function OrderPageContent() {
                 <div className="rounded-xl border border-border overflow-hidden mb-6">
                   {[
                     { label: 'Service', value: selectedDbService?.name || serviceType?.replace('_', ' & ') },
-                    { label: 'Regular items', value: `${clothesCount} pieces ({(clothesCount * 0.3).toFixed(1)} kg)` },
+                    { label: 'Regular items', value: `${clothesCount} pieces (${(clothesCount * 0.3).toFixed(1)} kg)` },
                     // Show each heavy item that has a count > 0
                     ...HEAVY_ITEMS.filter(item => heavyItems[item.key] > 0).map(item => ({
                       label: item.label,
-                      value: `${heavyItems[item.key]} ${item.emoji} ({(heavyItems[item.key] * item.weightPerItem).toFixed(1)} kg)`,
+                      value: `${heavyItems[item.key]} ${item.emoji} (${(heavyItems[item.key] * item.weightPerItem).toFixed(1)} kg)`,
                     })),
                     { label: 'Est. Total Weight', value: `~${(estimatedWeight ?? 0).toFixed(1)} kg` },
                     // Only show loads row for per_load pricing
