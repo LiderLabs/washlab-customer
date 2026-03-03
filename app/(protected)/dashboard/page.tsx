@@ -178,9 +178,20 @@ export default function DashboardPage() {
                     style={{ width: `${progress}%` }}
                   />
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  {nextRewardAt - loyaltyPoints.points} more points to unlock a free wash!
-                </p>
+                {loyaltyPoints.points >= nextRewardAt ? (
+                  <div className="mt-3">
+                    <p className="text-xs text-green-600 font-semibold mb-2">🎉 You have a free wash ready!</p>
+                    <Link href="/order">
+                      <button className="w-full py-2 px-4 rounded-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white text-sm font-semibold hover:opacity-90 transition-opacity">
+                        Redeem Free Wash
+                      </button>
+                    </Link>
+                  </div>
+                ) : (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    {nextRewardAt - loyaltyPoints.points} more points to unlock a free wash!
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
