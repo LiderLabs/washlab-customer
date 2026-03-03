@@ -38,7 +38,7 @@ export default function CompleteProfilePage() {
   // Pre-fill name and phone from Clerk metadata
   useEffect(() => {
     if (user) {
-      const clerkPhone = user.unsafeMetadata?.phoneNumber as string;
+      const clerkPhone = (user.unsafeMetadata?.phoneNumber || user.publicMetadata?.phoneNumber) as string;
       setFormData(prev => ({
         ...prev,
         name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
@@ -48,6 +48,7 @@ export default function CompleteProfilePage() {
   }, [user]);
 
   const register = useMutation(api.customers.register);
+  const updateProfile = useMutation(api.customers.updateProfile);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,12 +73,21 @@ export default function CompleteProfilePage() {
     setIsLoading(true);
 
     try {
-      await (register as any)({
-  name: formData.name,
-  phoneNumber: formData.phoneNumber,
-  email: user?.primaryEmailAddress?.emailAddress,
-  preferredBranchId: formData.branchId,
-});
+      try {
+        await (register as any)({
+          name: formData.name,
+          phoneNumber: formData.phoneNumber,
+          email: user?.primaryEmailAddress?.emailAddress,
+          preferredBranchId: formData.branchId,
+        });
+      } catch (regErr: any) {
+        if (!regErr.message?.includes('already registered')) throw regErr;
+        // Already registered via webhook - just update branch
+        await (updateProfile as any)({
+          preferredBranchId: formData.branchId,
+          phoneNumber: formData.phoneNumber,
+        });
+      }
       setIsComplete(true);
       toast.success('Profile completed successfully!');
 
