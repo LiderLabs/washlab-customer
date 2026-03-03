@@ -44,7 +44,7 @@ const STEPS = ['Branch', 'Service', 'Clothes', 'Whites', 'Delivery', 'Details', 
 // ── Heavy item definitions ────────────────────────────────────────────────────
 const HEAVY_ITEMS = [
   { key: 'jeans',  label: 'Jeans / Trousers', emoji: '👖', weightPerItem: 0.8 },
-  { key: 'duvet',  label: 'Duvet / Blanket',  emoji: '🛏️', weightPerItem: 2.5 },
+  { key: 'duvet',  label: 'Duvet / Blanket',  emoji: '🛏️', weightPerItem: 3.0 },
   { key: 'towel',  label: 'Towel',            emoji: '🏊', weightPerItem: 0.6 },
 ] as const;
 
@@ -190,12 +190,13 @@ function OrderPageContent() {
   let estimatedLoads = 1;
   let estimatedPrice = 0;
   if (selectedDbService) {
+    const basePrice = selectedDbService.price ?? selectedDbService.basePrice ?? 0;
     if (selectedDbService.pricingType === 'per_kg') {
-      estimatedPrice = estimatedWeight * selectedDbService.basePrice;
+      estimatedPrice = estimatedWeight * basePrice;
     } else {
       estimatedLoads = Math.ceil(estimatedWeight / 8) + extraLoadsForWhites;
       estimatedLoads = Math.max(1, estimatedLoads);
-      estimatedPrice = estimatedLoads * selectedDbService.basePrice;
+      estimatedPrice = estimatedLoads * basePrice;
     }
   }
 
@@ -336,7 +337,7 @@ function OrderPageContent() {
                   'Bring your clothes to the selected branch',
                   `Show your order number ${orderNumber} to the attendant`,
                   'Your clothes will be weighed and final price calculated',
-                  'Pay and receive your bag tag',
+                  'Make payment and receive your bag tag',
                 ].map((step, i) => (
                   <li key={i} className="flex gap-2 sm:gap-3">
                     <span className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center flex-shrink-0 text-xs">{i + 1}</span>
@@ -453,34 +454,19 @@ function OrderPageContent() {
           {currentStep === 2 && (
             <div className="animate-fade-in">
               <h2 className="text-xl font-display font-semibold mb-1">How Many Clothes?</h2>
-              <p className="text-sm text-muted-foreground mb-6">
-                Enter your regular items, then tell us about any heavier pieces below.
-              </p>
-
-              <div className="max-w-md mx-auto mb-8">
-                <Label htmlFor="clothesCount" className="text-sm text-muted-foreground">
-                  Regular clothing items (shirts, underwear, socks, etc.)
-                </Label>
-                <Input
-                  id="clothesCount"
-                  type="number"
-                  min="0"
-                  value={clothesCount || ''}
-                  onChange={(e) => setClothesCount(parseInt(e.target.value) || 0)}
-                  className="mt-2 text-2xl font-display h-16 text-center"
-                  placeholder="0"
-                />
-                <p className="text-xs text-muted-foreground mt-2 text-center">
-                  ~0.3 kg per item · we'll weigh everything at check-in
-                </p>
-              </div>
-
               <div className="max-w-md mx-auto">
-                <p className="text-sm font-medium text-foreground mb-1">Any heavier items?</p>
-                <p className="text-xs text-muted-foreground mb-4">
-                  These weigh more than regular clothes — add them for a better price estimate.
-                </p>
+                <p className="text-sm font-medium text-foreground mb-3">Select your items</p>
                 <div className="space-y-3">
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-muted/50 border border-border">
+                    <div className="flex items-center gap-3">
+                      <span className="text-xl">👕</span>
+                      <div>
+                        <p className="text-sm font-medium">Regular Clothes</p>
+                        <p className="text-xs text-muted-foreground">Shirts, underwear, socks · ~0.5 kg each</p>
+                      </div>
+                    </div>
+                    <Counter value={clothesCount} onChange={(v) => setClothesCount(Math.max(0, v))} />
+                  </div>
                   {HEAVY_ITEMS.map(item => (
                     <div
                       key={item.key}
@@ -502,12 +488,21 @@ function OrderPageContent() {
                 </div>
 
                 {estimatedWeight > 0 && (
-                  <div className="mt-5 p-4 rounded-xl bg-primary/5 border border-primary/20 flex items-center justify-between">
+                  <div className="space-y-2">
+                  <div className="p-4 rounded-xl bg-primary/5 border border-primary/20 flex items-center justify-between">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Info className="w-4 h-4 text-primary flex-shrink-0" />
+                      Total items added
+                    </div>
+                    <span className="font-bold text-primary text-lg">{clothesCount + Object.values(heavyItems).reduce((a, b) => a + b, 0)} items</span>
+                  </div>
+                  <div className="flex items-center justify-between mt-2">
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
                       <Info className="w-4 h-4 text-primary flex-shrink-0" />
                       Estimated total weight
                     </div>
                     <span className="font-bold text-primary text-lg">~{(estimatedWeight ?? 0).toFixed(1)} kg</span>
+                  </div>
                   </div>
                 )}
               </div>
@@ -552,7 +547,7 @@ function OrderPageContent() {
                         className={`w-full p-4 rounded-xl border-2 text-left transition-all ${!washSeparately ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/50'}`}
                       >
                         <span className="font-medium">Mix with colors</span>
-                        <span className="block text-sm text-muted-foreground">Faster but may cause color transfer</span>
+                        <span className="block text-sm text-muted-foreground">May cause color transfer</span>
                       </button>
                     </div>
 
@@ -604,7 +599,7 @@ function OrderPageContent() {
                       className="p-4 rounded-xl border-2 transition-all text-left border-primary bg-primary/5"
                     >
                       <span className="font-medium block mb-1">Self Service</span>
-                      <span className="text-xs text-muted-foreground">You drop off your laundry and pick it up yourself.</span>
+                      <span className="text-xs text-muted-foreground">Drop off your laundry and pick it up yourself.</span>
                     </button>
                     {['Drop-off + Delivery', 'Pickup + Self Pick', 'Full Service'].map(option => (
                       <button key={option} disabled className="p-4 rounded-xl border-2 text-left border-border bg-muted/30 opacity-60 cursor-not-allowed relative">
@@ -616,7 +611,7 @@ function OrderPageContent() {
                     ))}
                   </div>
                   <p className="text-xs text-muted-foreground text-center mt-3 bg-muted/50 rounded-lg p-3">
-                    Delivery and pickup services are coming soon. WashLab currently operates as self-service only.
+                    Delivery and pickup services coming soon. WashLab currently operates as self-service only.
                   </p>
                 </div>
               </div>
@@ -663,11 +658,11 @@ function OrderPageContent() {
                 )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="hall">Hall / Hostel *</Label>
+                    <Label htmlFor="hall">Hall/Hostel/Residence *</Label>
                     <Input id="hall" value={customerInfo.hall} onChange={(e) => setCustomerInfo({ ...customerInfo, hall: e.target.value })} placeholder="e.g. Akuafo Hall" className="mt-1" />
                   </div>
                   <div>
-                    <Label htmlFor="room">Room Number *</Label>
+                    <Label htmlFor="room">Room Number/House Number *</Label>
                     <Input id="room" value={customerInfo.room} onChange={(e) => setCustomerInfo({ ...customerInfo, room: e.target.value })} placeholder="e.g. A302" className="mt-1" />
                   </div>
                 </div>
@@ -703,11 +698,11 @@ function OrderPageContent() {
                 <div className="rounded-xl border border-border overflow-hidden mb-6">
                   {[
                     { label: 'Service', value: selectedDbService?.name || serviceType?.replace('_', ' & ') },
-                    { label: 'Regular items', value: `${clothesCount} pieces (~${(clothesCount * 0.3).toFixed(1)} kg)` },
+                    { label: 'Regular items', value: `${clothesCount} pieces ({(clothesCount * 0.3).toFixed(1)} kg)` },
                     // Show each heavy item that has a count > 0
                     ...HEAVY_ITEMS.filter(item => heavyItems[item.key] > 0).map(item => ({
                       label: item.label,
-                      value: `${heavyItems[item.key]} ${item.emoji} (~${(heavyItems[item.key] * item.weightPerItem).toFixed(1)} kg)`,
+                      value: `${heavyItems[item.key]} ${item.emoji} ({(heavyItems[item.key] * item.weightPerItem).toFixed(1)} kg)`,
                     })),
                     { label: 'Est. Total Weight', value: `~${(estimatedWeight ?? 0).toFixed(1)} kg` },
                     // Only show loads row for per_load pricing
@@ -732,7 +727,7 @@ function OrderPageContent() {
                 </div>
 
                 {/* Voucher code */}
-                <div className="mb-5 p-4 rounded-xl border border-border bg-muted/30">
+               {/* <div className="mb-5 p-4 rounded-xl border border-border bg-muted/30">
                   <p className="text-sm font-medium mb-2">Have a voucher code?</p>
                   {voucherResult?.valid ? (
                     <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
@@ -752,7 +747,7 @@ function OrderPageContent() {
                       </Button>
                     </div>
                   )}
-                </div>
+                </div>   */}
 
                 {/* Estimated total */}
                 <div className="bg-primary/5 rounded-xl p-4 mb-5 border border-primary/20">
