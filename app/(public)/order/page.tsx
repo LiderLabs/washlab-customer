@@ -107,6 +107,7 @@ function OrderPageContent() {
   const { clerkUser, convexUser } = useCurrentCustomer();
 
   const [currentStep, setCurrentStep] = useState(0);
+  const [branchAutoSet, setBranchAutoSet] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [orderNumber, setOrderNumber] = useState<string | null>(null);
@@ -150,8 +151,10 @@ function OrderPageContent() {
         email: convexUser.email || clerkUser?.emailAddresses?.[0]?.emailAddress || '',
       }));
       const prefBranch = (convexUser as any).preferredBranchId;
-      if (prefBranch && !branchId) {
+      if (prefBranch && !branchAutoSet) {
         setBranchId(prefBranch);
+        setBranchAutoSet(true);
+        if (currentStep === 0) setCurrentStep(1);
       }
     }
   }, [convexUser, clerkUser, isAuthenticated]);
@@ -772,7 +775,7 @@ function OrderPageContent() {
 
         {/* Navigation */}
         <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 sm:gap-0 mt-8">
-          <Button variant="outline" onClick={handleBack} disabled={currentStep === 1 || isSubmitting} className="w-full sm:w-auto">
+          <Button variant="outline" onClick={handleBack} disabled={currentStep === 0 || (currentStep === 1 && isAuthenticated && !!(convexUser as any)?.preferredBranchId) || isSubmitting} className="w-full sm:w-auto">
             <ChevronLeft className="w-4 h-4" /> Back
           </Button>
           <Button onClick={handleNext} disabled={!canProceed() || isSubmitting} className="w-full sm:w-auto">

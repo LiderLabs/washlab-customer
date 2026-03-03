@@ -189,7 +189,7 @@ export default function SignUpForm() {
                     toast.success('Account created successfully!')
                 }
                 
-                router.push('/dashboard')
+                router.push('/dashboard/complete-profile')
             }
         } catch (err: unknown) {
             console.error('Verification error:', err)
