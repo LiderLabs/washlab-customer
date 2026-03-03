@@ -29,7 +29,6 @@ export default function CompleteProfilePage() {
   const [isComplete, setIsComplete] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
-    phoneNumber: '',
     branchId: '',
   });
 
@@ -38,11 +37,9 @@ export default function CompleteProfilePage() {
   // Pre-fill name and phone from Clerk metadata
   useEffect(() => {
     if (user) {
-      const clerkPhone = (user.unsafeMetadata?.phoneNumber || user.publicMetadata?.phoneNumber) as string;
       setFormData(prev => ({
         ...prev,
         name: `${user.firstName || ''} ${user.lastName || ''}`.trim(),
-        phoneNumber: clerkPhone || '',
       }));
     }
   }, [user]);
@@ -63,30 +60,26 @@ export default function CompleteProfilePage() {
       return;
     }
 
-    // Validate phone number (Ghana format)
-    const phoneRegex = /^0[235][0-9]{8}$/;
-    if (!phoneRegex.test(formData.phoneNumber)) {
-      toast.error('Please enter a valid Ghana phone number (e.g., 0551234567)');
-      return;
-    }
-
     setIsLoading(true);
 
     try {
       try {
+        const clerkPhone = (user?.unsafeMetadata?.phoneNumber || user?.publicMetadata?.phoneNumber) as string || 'pending';
         await (register as any)({
           name: formData.name,
-          phoneNumber: formData.phoneNumber,
+          phoneNumber: clerkPhone,
           email: user?.primaryEmailAddress?.emailAddress,
           preferredBranchId: formData.branchId,
         });
       } catch (regErr: any) {
-        if (!regErr.message?.includes('already registered')) throw regErr;
-        // Already registered via webhook - just update branch
-        await (updateProfile as any)({
-          preferredBranchId: formData.branchId,
-          phoneNumber: formData.phoneNumber,
-        });
+        // Always fall back to updateProfile regardless of error
+        try {
+          await (updateProfile as any)({
+            preferredBranchId: formData.branchId,
+          });
+        } catch (updateErr: any) {
+          console.error('UpdateProfile error:', updateErr);
+        }
       }
       setIsComplete(true);
       toast.success('Profile completed successfully!');
@@ -179,25 +172,7 @@ export default function CompleteProfilePage() {
               </div>
             </div>
 
-            {/* Phone */}
-            <div className="space-y-2">
-              <Label htmlFor="phoneNumber">Phone Number</Label>
-              <div className="relative">
-                <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="phoneNumber"
-                  type="tel"
-                  placeholder="0551234567"
-                  value={formData.phoneNumber}
-                  onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                  className="pl-10"
-                  required
-                />
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Ghana phone number format (e.g., 0551234567)
-              </p>
-            </div>
+
 
             {/* Branch */}
             <div className="space-y-2">
