@@ -44,7 +44,7 @@ export default function AuthLayout({
 
         {/* Footer */}
         <div className="text-center text-sm text-muted-foreground">
-          <p>© {new Date().getFullYear()} WashLab. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} WashLab · Powered by Lider Technologies LTD</p>
         </div>
       </div>
 
