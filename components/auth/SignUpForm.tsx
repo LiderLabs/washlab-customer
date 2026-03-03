@@ -167,6 +167,12 @@ export default function SignUpForm() {
                 await setActive({ session: completeSignUp.createdSessionId })
                 
                 const phoneDigits = formData.phoneNumber.replace(/\D/g, '')
+                // Save phone to Clerk unsafeMetadata so complete-profile can pre-fill it
+                try {
+                    await signUp.update({ unsafeMetadata: { phoneNumber: phoneDigits } })
+                } catch (metaErr) {
+                    console.error('Failed to save phone to metadata:', metaErr)
+                }
                 // Save real phone number (webhook creates customer with "pending-..." placeholder)
                 try {
                     await updateProfile({ phoneNumber: phoneDigits })
