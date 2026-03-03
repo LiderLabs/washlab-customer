@@ -103,6 +103,7 @@ function Counter({
 function OrderPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const redeemLoyalty = searchParams?.get('redeem') === 'loyalty';
   const { isAuthenticated } = useConvexAuth();
   const { clerkUser, convexUser } = useCurrentCustomer();
 
@@ -141,6 +142,7 @@ function OrderPageContent() {
     voucherCode.length >= 3 && branchId ? { code: voucherCode.toUpperCase(), orderTotal: 1, branchId: branchId as any } : "skip"
   );
     const createOrder = useMutation(api.orders.createOnline);
+    const redeemPointsMutation = useMutation((api as any).loyalty.redeemPoints);
 
   useEffect(() => {
     if (convexUser && isAuthenticated) {
@@ -262,8 +264,19 @@ function OrderPageContent() {
         voucherCode: voucherResult?.valid ? voucherCode.trim().toUpperCase() : undefined,
       };
       const result = await createOrder(orderData as any);
+      // Auto-redeem loyalty points if coming from dashboard redeem button
+      if (redeemLoyalty && result.orderId) {
+        try {
+          await redeemPointsMutation({ orderId: result.orderId, pointsToRedeem: 10 });
+          toast.success('Order placed & free wash applied! 10 loyalty points redeemed.');
+        } catch (e) {
+          toast.success('Order placed successfully!');
+          toast.info('Note: Loyalty points could not be auto-applied. Visit your dashboard to redeem.');
+        }
+      } else {
+        toast.success('Order placed successfully!');
+      }
       setOrderNumber(result.orderNumber);
-      toast.success('Order placed successfully!');
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Unknown error occurred';
       toast.error(msg || 'Failed to create order. Please try again.');
