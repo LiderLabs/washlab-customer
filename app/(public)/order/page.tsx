@@ -87,7 +87,17 @@ function Counter({
       >
         <Minus className="w-3.5 h-3.5" />
       </button>
-      <span className="w-8 text-center font-semibold text-sm tabular-nums">{value}</span>
+      <input
+        type="text"
+        inputMode="numeric"
+        value={value}
+        onChange={(e) => {
+          const n = parseInt(e.target.value.replace(/\D/g, ""), 10);
+          if (!isNaN(n)) onChange(Math.min(max, Math.max(min, n)));
+          else if (e.target.value === "") onChange(min);
+        }}
+        className="w-10 h-8 text-center font-semibold text-sm tabular-nums bg-transparent border-b border-border focus:outline-none focus:border-primary"
+      />
       <button
         type="button"
         onClick={() => onChange(Math.min(max, value + 1))}
@@ -208,7 +218,7 @@ function OrderPageContent() {
     switch (currentStep) {
       case 0: return branchId !== '';
       case 1: return serviceType !== null;
-      case 2: return clothesCount > 0;
+      case 2: return clothesCount > 0 || Object.values(heavyItems).some(v => v > 0);
       case 3:
         if (hasWhites === null) return false;
         if (hasWhites === false) return true;
