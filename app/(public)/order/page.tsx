@@ -184,8 +184,8 @@ function OrderPageContent() {
   );
   const estimatedWeight = clothesCount * 0.3 + heavyItemsWeight;
 
-  // Whites washed separately = 1 extra load
-  const extraLoadsForWhites = hasWhites && washSeparately ? 1 : 0;
+  // Whites washed separately — attendant decides if extra load needed, no auto-charge
+  const extraLoadsForWhites = 0;
 
   let estimatedLoads = 1;
   let estimatedPrice = 0;
