@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt"
 import "./globals.css"
 import { Toaster } from "@/components/ui/sonner"
 import { ThemeProvider } from "@/providers/theme-provider"
@@ -7,8 +8,13 @@ import { OrderProvider } from "@/context/OrderContext"
 
 export const metadata: Metadata = {
   title: "WashLab - Campus Laundry Made Easy",
-  description:
-    "Wash. Dry. Fold. Done. Professional laundry service for campus life.",
+  description: "Wash. Dry. Fold. Done. Professional laundry service for campus life.",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "WashLab",
+  },
 }
 
 export default function RootLayout({
@@ -19,6 +25,7 @@ export default function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <body suppressHydrationWarning>
+        <script dangerouslySetInnerHTML={{ __html: `if ('serviceWorker' in navigator) { window.addEventListener('load', function() { navigator.serviceWorker.register('/service-worker.js'); }); }` }} />
         <AuthProvider>
           <OrderProvider>
             <ThemeProvider
