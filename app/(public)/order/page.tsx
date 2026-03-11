@@ -751,7 +751,7 @@ function OrderPageContent() {
                 </div>
 
                 {/* Voucher code */}
-               <div className="mb-4 p-4 rounded-xl border border-border bg-muted/30">
+              {/* <div className="mb-4 p-4 rounded-xl border border-border bg-muted/30">
                   <p className="text-sm font-semibold mb-3">Have a voucher code?</p>
                   {voucherResult?.valid ? (
                     <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
@@ -771,7 +771,7 @@ function OrderPageContent() {
                       </Button>
                     </div>
                   )}
-                </div>
+                </div>*/}
 
                 {/* Loyalty redemption */}
                 {isAuthenticated && (loyaltyBalance?.points ?? 0) >= 10 && (

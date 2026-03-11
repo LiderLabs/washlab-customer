@@ -706,16 +706,7 @@ function TrackPageContent() {
                       </span>
                     </div>
                   )}
-                  {order.whitesSeparate && (
-                    <div className='flex justify-between items-center'>
-                      <span className='text-sm text-muted-foreground'>
-                        Whites
-                      </span>
-                      <span className='text-sm font-medium'>
-                        Washed Separately
-                      </span>
-                    </div>
-                  )}
+
                   <Separator />
                   <div className='flex justify-between items-center'>
                     <span className='text-sm text-muted-foreground'>
