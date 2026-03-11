@@ -125,6 +125,7 @@ function OrderPageContent() {
   const [voucherCode, setVoucherCode] = useState('');
   const [voucherResult, setVoucherResult] = useState<null | { valid: boolean; discountAmount?: number; finalPrice?: number; voucher?: { code: string; name?: string; discountType: string; discountValue: number }; error?: string }>(null);
   const [voucherLoading, setVoucherLoading] = useState(false);
+  const [redeemLoyaltyInline, setRedeemLoyaltyInline] = useState(false);
 
   const [serviceType, setServiceType] = useState<ServiceType | null>(null);
   const [clothesCount, setClothesCount] = useState<number>(0);
@@ -153,6 +154,11 @@ function OrderPageContent() {
   );
     const createOrder = useMutation(api.orders.createOnline);
     const redeemPointsMutation = useMutation((api as any).loyalty.redeemPoints);
+  const applyVoucherMutation = useMutation((api as any).vouchers.applyToOrder);
+  const loyaltyBalance = useQuery(
+    (api as any).loyalty.getBalance,
+    isAuthenticated ? {} : "skip"
+  );
 
   useEffect(() => {
     if (convexUser && isAuthenticated) {
@@ -275,11 +281,20 @@ function OrderPageContent() {
         voucherCode: voucherResult?.valid ? voucherCode.trim().toUpperCase() : undefined,
       };
       const result = await createOrder(orderData as any);
+      // Apply voucher if one was validated
+      if (voucherResult?.valid && result.orderId) {
+        try {
+          await applyVoucherMutation({ voucherCode: voucherCode.toUpperCase(), orderId: result.orderId });
+        } catch (e) {
+          toast.info('Order placed but voucher could not be applied. Mention it at the station.');
+        }
+      }
       // Auto-redeem loyalty points if coming from dashboard redeem button
-      if (redeemLoyalty && result.orderId) {
+      // Auto-redeem loyalty points if coming from dashboard redeem button
+      if ((redeemLoyalty || redeemLoyaltyInline) && result.orderId) {
         try {
           await redeemPointsMutation({ orderId: result.orderId, pointsToRedeem: 10 });
-          toast.success('Order placed & free wash applied! 10 loyalty points redeemed.');
+          toast.success('Order placed! 10 loyalty points redeemed — enjoy your free wash.');
         } catch (e) {
           toast.success('Order placed successfully!');
           toast.info('Note: Loyalty points could not be auto-applied. Visit your dashboard to redeem.');
@@ -736,27 +751,51 @@ function OrderPageContent() {
                 </div>
 
                 {/* Voucher code */}
-               {/* <div className="mb-5 p-4 rounded-xl border border-border bg-muted/30">
-                  <p className="text-sm font-medium mb-2">Have a voucher code?</p>
+               <div className="mb-4 p-4 rounded-xl border border-border bg-muted/30">
+                  <p className="text-sm font-semibold mb-3">Have a voucher code?</p>
                   {voucherResult?.valid ? (
                     <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800">
                       <div>
                         <p className="text-sm font-semibold text-green-700 dark:text-green-400">{voucherResult.voucher?.code} applied!</p>
                         <p className="text-xs text-muted-foreground">
-                          {voucherResult.voucher?.discountType === 'free_wash' ? 'Free wash - no payment needed at station' : `-GHS ${(voucherResult?.discountAmount ?? 0).toFixed(2)} discount`}
+                          {voucherResult.voucher?.discountType === 'free_wash' ? 'Free wash — no payment needed at station' : `-GHS ${(voucherResult?.discountAmount ?? 0).toFixed(2)} discount`}
                         </p>
                       </div>
                       <button onClick={() => { setVoucherResult(null); setVoucherCode(''); }} className="text-xs text-muted-foreground underline hover:text-foreground">Remove</button>
                     </div>
                   ) : (
                     <div className="flex gap-2">
-                      <Input value={voucherCode} onChange={(e) => setVoucherCode(e.target.value.toUpperCase())} onKeyDown={(e) => e.key === 'Enter' && handleApplyVoucher()} placeholder="Enter voucher code" className="flex-1 uppercase text-sm" />
+                      <Input value={voucherCode} onChange={(e) => setVoucherCode(e.target.value.toUpperCase())} onKeyDown={(e) => e.key === 'Enter' && handleApplyVoucher()} placeholder="Enter voucher code" className="flex-1 uppercase text-sm" maxLength={20} />
                       <Button type="button" variant="outline" onClick={handleApplyVoucher} disabled={!voucherCode.trim()} size="sm" className="px-4">
                         Apply
                       </Button>
                     </div>
                   )}
-                </div>   */}
+                </div>
+
+                {/* Loyalty redemption */}
+                {isAuthenticated && (loyaltyBalance?.points ?? 0) >= 10 && (
+                  <div className="mb-4 p-4 rounded-xl border border-border bg-muted/30">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold">Redeem Loyalty Points</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          You have <span className="font-bold text-primary">{loyaltyBalance?.points ?? 0} pts</span> — redeem 10 for a free wash
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setRedeemLoyaltyInline(!redeemLoyaltyInline)}
+                        className={`relative w-11 h-6 rounded-full transition-colors ${redeemLoyaltyInline ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+                      >
+                        <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${redeemLoyaltyInline ? 'translate-x-5' : 'translate-x-0'}`} />
+                      </button>
+                    </div>
+                    {redeemLoyaltyInline && (
+                      <p className="text-xs text-green-600 dark:text-green-400 mt-2 font-medium">✓ 10 loyalty points will be redeemed — this wash is on us!</p>
+                    )}
+                  </div>
+                )}
 
                 {/* Estimated total */}
                 <div className="bg-primary/5 rounded-xl p-4 mb-5 border border-primary/20">
