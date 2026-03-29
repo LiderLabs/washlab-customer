@@ -2,13 +2,60 @@
 
 import { cn } from '@/lib/utils';
 import { LucideIcon } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { api } from '@jordan6699/washlab-backend/api';
 
-const SERVICE_IMAGES: Record<string, string> = {
-  wash_and_dry: '/assets/laundry-hero-1.jpg',
-  wash_only: '/assets/stacked-clothes.jpg',
-  dry_only: '/assets/laundry-hero-2.jpg',
+// ─── Fallback images per service code ────────────────────────────────────────
+const FALLBACKS: Record<string, string> = {
+  wash_and_dry:  '/assets/laundry-hero-1.jpg',
+  wash_and_fold: '/assets/laundry-hero-1.jpg',
+  wash_only:     '/assets/stacked-clothes.jpg',
+  dry_only:      '/assets/laundry-hero-2.jpg',
 };
 
+// ─── Copied verbatim from the working attendant NewOrderContent ───────────────
+const fixConvexUrl = (url: string | null | undefined): string | null => {
+  if (!url) return null;
+  return url.replace('convex-dashboard.washlab.app', 'convex-backend.washlab.app');
+};
+
+const ServiceImageResolved = ({
+  imageUrl,
+  code,
+  alt,
+  className,
+}: {
+  imageUrl?: string;
+  code?: string;
+  alt: string;
+  className: string;
+}) => {
+    console.log('ServiceImageResolved imageUrl:', imageUrl)
+  const isStorageId =
+    !!imageUrl &&
+    !imageUrl.startsWith('http') &&
+    !imageUrl.startsWith('/') &&
+    !imageUrl.startsWith('convex-storage:');
+
+  const rawStorageUrl = useQuery(
+    api.admin.getServiceImageUrl,
+    isStorageId ? { storageId: imageUrl as any } : 'skip'
+  );
+
+  const storageUrl = fixConvexUrl(rawStorageUrl ?? null);
+
+  const fallback = code ? (FALLBACKS[code] ?? '/assets/laundry-hero-1.jpg') : '/assets/laundry-hero-1.jpg';
+
+  const src = !imageUrl
+    ? fallback
+    : isStorageId
+    ? (storageUrl ?? fallback)
+    : fixConvexUrl(imageUrl) ?? imageUrl;
+
+  return <img src={src} alt={alt} className={className} />;
+};
+
+// ─── ServiceCard ──────────────────────────────────────────────────────────────
 interface ServiceCardProps {
   icon: LucideIcon;
   title: string;
@@ -17,6 +64,7 @@ interface ServiceCardProps {
   onClick?: () => void;
   price?: string;
   code?: string;
+  imageUrl?: string;
 }
 
 export const ServiceCard = ({
@@ -27,8 +75,9 @@ export const ServiceCard = ({
   onClick,
   price,
   code,
+  imageUrl,
 }: ServiceCardProps) => {
-  const image = code ? SERVICE_IMAGES[code] : null;
+  const hasImage = !!(imageUrl || (code && FALLBACKS[code]));
 
   return (
     <button
@@ -41,10 +90,11 @@ export const ServiceCard = ({
           : 'border-border bg-card hover:border-primary/50'
       )}
     >
-      {image ? (
+      {hasImage ? (
         <div className="relative w-full h-40 overflow-hidden">
-          <img
-            src={image}
+          <ServiceImageResolved
+            imageUrl={imageUrl}
+            code={code}
             alt={title}
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           />

@@ -43,9 +43,9 @@ const STEPS = ['Branch', 'Service', 'Clothes', 'Whites', 'Delivery', 'Details', 
 
 // ── Heavy item definitions ────────────────────────────────────────────────────
 const HEAVY_ITEMS = [
-  { key: 'jeans',  label: 'Jeans / Trousers', emoji: '👖', weightPerItem: 0.8 },
-  { key: 'duvet',  label: 'Duvet / Blanket',  emoji: '🛏️', weightPerItem: 3.0 },
-  { key: 'towel',  label: 'Towel',            emoji: '🏊', weightPerItem: 0.6 },
+  { key: 'jeans',  label: 'Jeans / Trousers', emoji: '👖', weightPerItem: 1.0 },
+  { key: 'duvet',  label: 'Duvet / Blanket',  emoji: '🛏️', weightPerItem: 4.0 },
+  { key: 'towel',  label: 'Towel',            emoji: '🏊', weightPerItem: 0.8 },
 ] as const;
 
 type HeavyItemKey = typeof HEAVY_ITEMS[number]['key'];
@@ -145,9 +145,15 @@ function OrderPageContent() {
   const branches = (useQuery(api.branches.getActive, {}) ?? []) as Branch[];
   const customerProfile = useQuery((api as any).customers.getProfile, isAuthenticated ? {} : "skip");
   const dbServices = useQuery(
-    (api as any).admin.getBranchServicesPublic,
+    (api as any).admin.getBranchServicesForCustomer,
     branchId ? { branchId: branchId as any } : "skip"
   ) ?? [];
+
+  useEffect(() => {
+    if ((dbServices as any[]).length > 0) {
+      console.log('WASHLAB_DEBUG', JSON.stringify(dbServices, null, 2))
+    }
+  }, [dbServices])
   const validateVoucher = useQuery(
     (api as any).vouchers.validate,
     voucherCode.length >= 3 && branchId ? { code: voucherCode.toUpperCase(), orderTotal: 1, branchId: branchId as any } : "skip"
@@ -155,10 +161,10 @@ function OrderPageContent() {
     const createOrder = useMutation(api.orders.createOnline);
     const redeemPointsMutation = useMutation((api as any).loyalty.redeemPoints);
   const applyVoucherMutation = useMutation((api as any).vouchers.applyToOrder);
-  const loyaltyBalance = useQuery(
-    (api as any).loyalty.getBalance,
-    isAuthenticated ? {} : "skip"
-  );
+const loyaltyBalance = useQuery(
+  (api as any).loyalty.getBalance,
+  "skip"
+);
 
   useEffect(() => {
     if (convexUser && isAuthenticated) {
@@ -198,7 +204,7 @@ function OrderPageContent() {
   const heavyItemsWeight = HEAVY_ITEMS.reduce(
     (total, item) => total + heavyItems[item.key] * item.weightPerItem, 0
   );
-  const estimatedWeight = clothesCount * 0.3 + heavyItemsWeight;
+  const estimatedWeight = clothesCount * 0.5 + heavyItemsWeight;
 
   // Whites washed separately — attendant decides if extra load needed, no auto-charge
   const extraLoadsForWhites = 0;
@@ -446,7 +452,7 @@ function OrderPageContent() {
                   {([...dbServices as any[]].sort((a, b) => {
                     const order: Record<string, number> = { wash_and_dry: 0, wash_only: 1, dry_only: 2 };
                     return (order[a.code] ?? 99) - (order[b.code] ?? 99);
-                  })).map(service => {
+                 })).filter((service: any) => service.showOnCustomerSide !== false).map(service => {
                     const getIcon = (code: string) => {
                       if (code.includes('wash') && code.includes('dry')) return Sparkles;
                       if (code.includes('wash')) return Droplets;
@@ -462,6 +468,7 @@ function OrderPageContent() {
                         isSelected={serviceType === service.code}
                         onClick={() => setServiceType(service.code as ServiceType)}
                         code={service.code}
+                        imageUrl={service.imageUrl}
                         price={service.price != null
                           ? `₵${(service.price ?? 0).toFixed(2)}`
                           : service.pricingType === 'per_kg'
@@ -722,7 +729,7 @@ function OrderPageContent() {
                 <div className="rounded-xl border border-border overflow-hidden mb-6">
                   {[
                     { label: 'Service', value: selectedDbService?.name || serviceType?.replace('_', ' & ') },
-                    { label: 'Regular items', value: `${clothesCount} pieces (${(clothesCount * 0.3).toFixed(1)} kg)` },
+                    { label: 'Regular items', value: `${clothesCount} pieces (${(clothesCount * 0.5).toFixed(1)} kg)` },
                     // Show each heavy item that has a count > 0
                     ...HEAVY_ITEMS.filter(item => heavyItems[item.key] > 0).map(item => ({
                       label: item.label,
@@ -863,3 +870,4 @@ export default function OrderPage() {
     </Suspense>
   );
 }
+
