@@ -10,7 +10,6 @@ const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL
 const convex = convexUrl ? new ConvexReactClient(convexUrl) : null
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  // Skip Clerk/Convex when env vars are missing (e.g. build without env) so prerender doesn't throw
   if (!clerkKey) {
     return <>{children}</>
   }
@@ -20,8 +19,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       publishableKey={clerkKey}
       signInUrl="/sign-in"
       signUpUrl="/sign-up"
-      afterSignInUrl="/dashboard"
-      afterSignUpUrl="/dashboard"
+      signInFallbackRedirectUrl="/dashboard"
+      signUpFallbackRedirectUrl="/dashboard"
     >
       {convex ? (
         <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
@@ -33,4 +32,3 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     </ClerkProvider>
   )
 }
-
