@@ -33,7 +33,7 @@ export default function NotificationsPage() {
   const { isAuthenticated } = useConvexAuth();
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [readFilter, setReadFilter] = useState<string>('all');
-  const [selectedNotification, setSelectedNotification] = useState<any>(null);
+  const [selectedNotification, setSelectedNotification] = useState<Doc<"notifications"> | null>(null);
 
   const allNotifications = useQuery(
     api.notifications.getMyNotifications,
@@ -52,7 +52,7 @@ export default function NotificationsPage() {
   const deleteNotification = useMutation(api.notifications.deleteNotification);
 
   // Filter notifications
-  const filteredNotifications = allNotifications.filter((notification: any) => {
+  const filteredNotifications = allNotifications.filter((notification) => {
     const matchesType = typeFilter === 'all' || notification.type === typeFilter;
     const matchesRead =
       readFilter === 'all' ||
@@ -142,7 +142,7 @@ export default function NotificationsPage() {
   };
 
   // Check if notification is a system/broadcast notification
-  const isSystemNotification = (notification: any) => {
+  const isSystemNotification = (notification: { recipientId: string }) => {
     return notification.recipientId === "all";
   };
 
@@ -264,7 +264,7 @@ export default function NotificationsPage() {
               </div>
             ) : (
               <div className="space-y-2">
-                {filteredNotifications.map((notification: any) => (
+                {filteredNotifications.map((notification) => (
                   <div
                     key={notification._id}
                     className={`group rounded-lg border p-4 transition-all cursor-pointer ${
@@ -272,7 +272,7 @@ export default function NotificationsPage() {
                         ? 'bg-blue-50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-900'
                         : 'hover:border-primary'
                     }`}
-                    onClick={() => handleViewDetails(notification)}
+                    onClick={() => handleViewDetails(notification as Doc<"notifications">)}
                   >
                     <div className="flex items-start gap-3">
                       {/* Icon */}
@@ -318,7 +318,7 @@ export default function NotificationsPage() {
                                 <Check className="h-3 w-3" />
                               </Button>
                             )}
-                            {!isSystemNotification(notification) && (
+                            {!isSystemNotification(notification as { recipientId: string }) && (
                               <Button
                                 size="sm"
                                 variant="ghost"

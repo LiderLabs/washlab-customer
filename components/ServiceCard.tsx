@@ -1,6 +1,8 @@
 "use client"
 
 import { cn } from '@/lib/utils';
+import Image from 'next/image';
+import { Id } from '@jordan6699/washlab-backend/dataModel';
 import { LucideIcon } from 'lucide-react';
 import { useQuery } from 'convex/react';
 import { api } from '@jordan6699/washlab-backend/api';
@@ -39,7 +41,7 @@ const ServiceImageResolved = ({
 
   const rawStorageUrl = useQuery(
     api.admin.getServiceImageUrl,
-    isStorageId ? { storageId: imageUrl as any } : 'skip'
+    isStorageId ? { storageId: imageUrl as Id<"_storage"> } : 'skip'
   );
 
   const storageUrl = fixConvexUrl(rawStorageUrl ?? null);
@@ -52,7 +54,7 @@ const ServiceImageResolved = ({
     ? (storageUrl ?? fallback)
     : fixConvexUrl(imageUrl) ?? imageUrl;
 
-  return <img src={src} alt={alt} className={className} />;
+  return <Image src={src} alt={alt} className={className} fill unoptimized />;
 };
 
 // ─── ServiceCard ──────────────────────────────────────────────────────────────

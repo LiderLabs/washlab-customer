@@ -5,7 +5,7 @@ import { Logo } from '@/components/Logo';
 import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { PhoneSlideshow } from '@/components/PhoneSlideshow';
-import { ArrowRight, Clock, CreditCard, Gift, MapPin, Star, Building2, ArrowUp } from 'lucide-react';
+import { ArrowRight, MapPin, Star, ArrowUp } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 
@@ -79,7 +79,7 @@ export default function Home() {
               Wash. Dry. Fold. Done!
             </p>
             <p className="text-white/80 text-base md:text-lg mb-6 leading-relaxed">
-              Drop your clothes. Pay instantly. Get notified when it's ready.
+              Drop your clothes. Pay instantly. Get notified when it&apos;s ready.
             </p>
 
             <div className="flex flex-row gap-3 justify-center lg:justify-start">

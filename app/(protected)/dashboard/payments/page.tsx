@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { usePaginatedQuery, useQuery, useConvexAuth } from 'convex/react';
+import { usePaginatedQuery, useConvexAuth } from 'convex/react';
 import { api } from '@jordan6699/washlab-backend/api';
 import { Doc } from '@jordan6699/washlab-backend/dataModel';
 import CustomerLayout from '@/components/customer/CustomerLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   Select,

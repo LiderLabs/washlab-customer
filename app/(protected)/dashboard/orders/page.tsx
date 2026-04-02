@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { useQuery, useConvexAuth } from 'convex/react';
 import { api } from '@jordan6699/washlab-backend/api';
 import CustomerLayout from '@/components/customer/CustomerLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -234,7 +234,7 @@ export default function OrdersPage() {
               {/* Status */}
               <div>
                 <h3 className='text-sm font-medium mb-2'>Status</h3>
-                <StatusBadge status={mapStatus(selectedOrder.status) as any} />
+                <StatusBadge status={mapStatus(selectedOrder.status) as Parameters<typeof StatusBadge>[0]["status"]} />
               </div>
 
               {/* Service Details */}

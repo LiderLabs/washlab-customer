@@ -42,8 +42,8 @@ export const PWAInstallPrompt = () => {
         </div>
         <div className="bg-muted rounded-xl p-3 text-xs text-muted-foreground space-y-1.5">
           <p>1. Tap the <strong>Share</strong> button (⬆️) at the bottom of Safari</p>
-          <p>2. Scroll down and tap <strong>"Add to Home Screen"</strong></p>
-          <p>3. Tap <strong>"Add"</strong> to install</p>
+          <p>2. Scroll down and tap <strong>&ldquo;Add to Home Screen&rdquo;</strong></p>
+          <p>3. Tap <strong>&ldquo;Add&rdquo;</strong> to install</p>
         </div>
       </div>
     );

@@ -16,9 +16,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Loader2, Phone, User, CheckCircle2, Sparkles, MapPin } from 'lucide-react';
+import { Loader2, User, CheckCircle2, Sparkles, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
 import { Id } from '@jordan6699/washlab-backend/dataModel';
+
+interface Branch {
+  _id: string;
+  name: string;
+  city: string;
+}
 
 export default function CompleteProfilePage() {
   const { user, isLoaded: isClerkLoaded } = useUser();
@@ -64,20 +70,20 @@ export default function CompleteProfilePage() {
 
     try {
       try {
-        const clerkPhone = (user?.unsafeMetadata?.phoneNumber || user?.publicMetadata?.phoneNumber) as string || 'pending';
-        await (register as any)({
+        const clerkPhone = (user?.unsafeMetadata?.phoneNumber as string) || (user?.publicMetadata?.phoneNumber as string) || 'pending';
+        await register({
           name: formData.name,
           phoneNumber: clerkPhone,
           email: user?.primaryEmailAddress?.emailAddress,
-          preferredBranchId: formData.branchId,
+
         });
-      } catch (regErr: any) {
+      } catch (regErr: unknown) {
         // Always fall back to updateProfile regardless of error
         try {
-          await (updateProfile as any)({
-            preferredBranchId: formData.branchId,
+          await updateProfile({
+            preferredBranchId: formData.branchId as import('@jordan6699/washlab-backend/dataModel').Id<"branches">,
           });
-        } catch (updateErr: any) {
+        } catch (updateErr: unknown) {
           console.error('UpdateProfile error:', updateErr);
         }
       }
@@ -187,7 +193,7 @@ export default function CompleteProfilePage() {
                     <SelectValue placeholder="Select your nearest branch" />
                   </SelectTrigger>
                   <SelectContent>
-                    {branches.map((branch: any) => (
+                    {(branches as Branch[]).map((branch) => (
                       <SelectItem key={branch._id} value={branch._id}>
                         {branch.name} — {branch.city}
                       </SelectItem>

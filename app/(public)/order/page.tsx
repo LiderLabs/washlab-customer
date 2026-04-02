@@ -67,6 +67,25 @@ interface Branch {
   createdAt: number;
 }
 
+interface Service {
+  _id: string;
+  name: string;
+  code: string;
+  price: number;
+  basePrice?: number;
+  description?: string;
+  showOnCustomerSide?: boolean;
+  imageUrl?: string;
+  pricingType?: string;
+}
+
+interface VoucherResult {
+  valid: boolean;
+  voucher?: { discountType: string };
+  discountAmount?: number;
+  error?: string;
+}
+
 function Counter({
   value,
   onChange,
@@ -147,17 +166,17 @@ function OrderPageContent() {
   const customerProfile = useQuery((api as any).customers.getProfile, isAuthenticated ? {} : "skip");
   const dbServices = useQuery(
     (api as any).admin.getBranchServicesForCustomer,
-    branchId ? { branchId: branchId as any } : "skip"
+    branchId ? { branchId: branchId as string } : "skip"
   ) ?? [];
 
   useEffect(() => {
-    if ((dbServices as any[]).length > 0) {
+    if ((dbServices as Service[]).length > 0) {
       console.log('WASHLAB_DEBUG', JSON.stringify(dbServices, null, 2))
     }
   }, [dbServices])
   const validateVoucher = useQuery(
     (api as any).vouchers.validate,
-    voucherCode.length >= 3 && branchId ? { code: voucherCode.toUpperCase(), orderTotal: 1, branchId: branchId as any } : "skip"
+    voucherCode.length >= 3 && branchId ? { code: voucherCode.toUpperCase(), orderTotal: 1, branchId: branchId as string } : "skip"
   );
     const createOrder = useMutation(api.orders.createOnline);
     const redeemPointsMutation = useMutation((api as any).loyalty.redeemPoints);
@@ -175,7 +194,7 @@ const loyaltyBalance = useQuery(
         phone: convexUser.phoneNumber || '',
         email: convexUser.email || clerkUser?.emailAddresses?.[0]?.emailAddress || '',
       }));
-      const prefBranch = (convexUser as any).preferredBranchId;
+      const prefBranch = (convexUser as { preferredBranchId?: string }).preferredBranchId;
       if (prefBranch && !branchAutoSet) {
         setBranchId(prefBranch);
         setBranchAutoSet(true);
@@ -187,7 +206,7 @@ const loyaltyBalance = useQuery(
   useEffect(() => {
     const serviceFromUrl = searchParams.get('service');
     if (serviceFromUrl && dbServices.length > 0) {
-      const service = (dbServices as any[]).find(s => s.code === serviceFromUrl);
+      const service = (dbServices as Service[]).find(s => s.code === serviceFromUrl);
       if (service) setServiceType(serviceFromUrl as ServiceType);
     }
   }, [searchParams, dbServices]);
@@ -199,7 +218,7 @@ const loyaltyBalance = useQuery(
     }
   }, [dbServices, serviceType]);
 
-  const selectedDbService = (dbServices as any[]).find(s => s.code === serviceType);
+  const selectedDbService = (dbServices as Service[]).find(s => s.code === serviceType);
 
   // Weight: 0.3kg per regular item + heavy item weights
   const heavyItemsWeight = HEAVY_ITEMS.reduce(
@@ -261,7 +280,7 @@ const loyaltyBalance = useQuery(
       else toast.success(`Voucher applied! You save GHS ${((validateVoucher as any)?.discountAmount ?? 0).toFixed(2)}`);
     } else {
       setVoucherResult(null);
-      toast.error((validateVoucher as any)?.error || 'Invalid voucher');
+      toast.error((validateVoucher as { error?: string })?.error || 'Invalid voucher');
     }
   };
   const handleSubmitOrder = async () => {
@@ -287,7 +306,7 @@ const loyaltyBalance = useQuery(
         notes: customerInfo.notes || undefined,
         voucherCode: voucherResult?.valid ? voucherCode.trim().toUpperCase() : undefined,
       };
-      const result = await createOrder(orderData as any);
+      const result = await createOrder(orderData as Parameters<typeof createOrder>[0]);
       // Apply voucher if one was validated
       if (voucherResult?.valid && result.orderId) {
         try {
@@ -443,17 +462,17 @@ const loyaltyBalance = useQuery(
                   <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-muted-foreground" />
                   <p className="text-muted-foreground">Loading services...</p>
                 </div>
-              ) : (dbServices as any[]).length === 0 ? (
+              ) : (dbServices as Service[]).length === 0 ? (
                 <div className="text-center py-12 bg-muted/50 rounded-xl border border-border">
                   <p className="text-muted-foreground mb-2">No services available</p>
                   <p className="text-sm text-muted-foreground">Please check back later or contact support</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                  {([...dbServices as any[]].sort((a, b) => {
+                  {([...(dbServices as Service[])].sort((a, b) => {
                     const order: Record<string, number> = { wash_and_dry: 0, wash_only: 1, dry_only: 2 };
                     return (order[a.code] ?? 99) - (order[b.code] ?? 99);
-                 })).filter((service: any) => service.showOnCustomerSide !== false).map(service => {
+                 })).filter((service) => service.showOnCustomerSide !== false).map(service => {
                     const getIcon = (code: string) => {
                       if (code.includes('wash') && code.includes('dry')) return Sparkles;
                       if (code.includes('wash')) return Droplets;
@@ -676,7 +695,7 @@ const loyaltyBalance = useQuery(
                     <div>
                       <Label htmlFor="phone">Phone Number *</Label>
                       <InternationalPhoneInput id="phone" value={customerInfo.phone} onChange={(val) => setCustomerInfo({ ...customerInfo, phone: val })} className="mt-1" />
-                      <p className="text-xs text-muted-foreground mt-1">We'll use this to send you updates via WhatsApp</p>
+                      <p className="text-xs text-muted-foreground mt-1">We&apos;ll use this to send you updates via WhatsApp</p>
                     </div>
                     <div>
                       <Label htmlFor="email">Email Address *</Label>
@@ -839,7 +858,7 @@ const loyaltyBalance = useQuery(
 
         {/* Navigation */}
         <div className="flex flex-col-reverse sm:flex-row justify-between gap-3 sm:gap-0 mt-8">
-          <Button variant="outline" onClick={handleBack} disabled={currentStep === 0 || (currentStep === 1 && isAuthenticated && !!(convexUser as any)?.preferredBranchId) || isSubmitting} className="w-full sm:w-auto">
+          <Button variant="outline" onClick={handleBack} disabled={currentStep === 0 || (currentStep === 1 && isAuthenticated && !!(convexUser as { preferredBranchId?: string })?.preferredBranchId) || isSubmitting} className="w-full sm:w-auto">
             <ChevronLeft className="w-4 h-4" /> Back
           </Button>
           <Button onClick={handleNext} disabled={!canProceed() || isSubmitting} className="w-full sm:w-auto">

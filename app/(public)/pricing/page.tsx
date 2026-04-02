@@ -8,16 +8,30 @@ import { Navbar } from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { Sparkles, Loader2, MapPin, ArrowLeft } from 'lucide-react';
 
+interface Branch {
+  _id: string;
+  name: string;
+  address: string;
+  city: string;
+}
+
+interface BranchService {
+  _id: string;
+  name: string;
+  price: number;
+  description?: string;
+}
+
 export default function PricingPage() {
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
 
-  const branches = (useQuery(api.branches.getActive, {}) ?? []) as any[];
+  const branches = (useQuery(api.branches.getActive, {}) ?? []) as Branch[];
   const branchServices = useQuery(
     (api as any).admin.getBranchServicesPublic,
     selectedBranchId ? { branchId: selectedBranchId } : "skip"
-  ) as any[] | undefined;
+  ) as BranchService[] | undefined;
 
-  const selectedBranch = branches.find((b: any) => b._id === selectedBranchId);
+  const selectedBranch = branches.find((b) => b._id === selectedBranchId);
 
   return (
     <div className="min-h-screen bg-background">
@@ -44,7 +58,7 @@ export default function PricingPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {branches.map((branch: any) => (
+                {branches.map((branch) => (
                   <button
                     key={branch._id}
                     onClick={() => setSelectedBranchId(branch._id)}
@@ -87,7 +101,7 @@ export default function PricingPage() {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 mb-12">
-                {branchServices.map((service: any, index: number) => {
+                {branchServices.map((service, index) => {
                   const isFeatured = branchServices.length === 3 ? index === 1 : index === 0;
                   return (
                     <div

@@ -7,11 +7,11 @@ import { useTheme } from 'next-themes';
 
 interface LogoProps {
   className?: string;
-  showText?: boolean;
+  _showText?: boolean;
   size?: 'sm' | 'md' | 'lg';
 }
 
-export const Logo = ({ className, showText = true, size = 'md' }: LogoProps) => {
+export const Logo = ({ className, _showText = true, size = 'md' }: LogoProps) => {
 
   const { theme } = useTheme();
 
