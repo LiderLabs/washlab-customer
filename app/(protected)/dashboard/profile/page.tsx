@@ -1,4 +1,5 @@
-'use client';
+'use client'
+import { InternationalPhoneInput } from '@/components/ui/InternationalPhoneInput';
 
 import { useState } from 'react';
 import { useQuery, useMutation, useConvexAuth } from 'convex/react';
@@ -248,7 +249,7 @@ export default function ProfilePage() {
                 <div className="relative mt-1">
                   <Phone className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
-                    id="phone"
+                    id="phone" // replaced
                     value={isEditing ? formData.phoneNumber : (customerProfile?.phoneNumber || 'Not provided')}
                     onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
                     disabled={!isEditing}

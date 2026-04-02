@@ -1,4 +1,5 @@
 "use client"
+import { InternationalPhoneInput } from '@/components/ui/InternationalPhoneInput'
 
 import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -674,7 +675,7 @@ const loyaltyBalance = useQuery(
                   <>
                     <div>
                       <Label htmlFor="phone">Phone Number *</Label>
-                      <Input id="phone" type="tel" value={customerInfo.phone} onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })} placeholder="0XX XXX XXXX" className="mt-1" required />
+                      <InternationalPhoneInput id="phone" value={customerInfo.phone} onChange={(val) => setCustomerInfo({ ...customerInfo, phone: val })} className="mt-1" />
                       <p className="text-xs text-muted-foreground mt-1">We'll use this to send you updates via WhatsApp</p>
                     </div>
                     <div>

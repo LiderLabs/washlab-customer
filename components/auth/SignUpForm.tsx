@@ -1,5 +1,6 @@
 'use client'
 
+import { InternationalPhoneInput, isValidPhoneNumber } from '@/components/ui/InternationalPhoneInput'
 import { useState } from 'react'
 import { useSignUp, useUser } from '@clerk/nextjs'
 import { useRouter } from 'next/navigation'
@@ -167,7 +168,7 @@ export default function SignUpForm() {
                 // Set the session first
                 await setActive({ session: completeSignUp.createdSessionId })
                 
-                const phoneDigits = formData.phoneNumber.replace(/\D/g, '')
+                const phoneDigits = formData.phoneNumber
                 // Save phone to Clerk unsafeMetadata so complete-profile can pre-fill it
                 try {
                     if (clerkUserObj) {

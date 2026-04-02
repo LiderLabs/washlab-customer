@@ -272,3 +272,42 @@
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-muted-foreground/50;
 }
+
+/* International Phone Input */
+.phone-input-wrapper .PhoneInput {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) - 2px);
+  padding: 0 12px;
+  background: hsl(var(--background));
+  height: 40px;
+}
+.phone-input-wrapper .PhoneInput:focus-within {
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+}
+.phone-input-wrapper .PhoneInputCountrySelect {
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  color: hsl(var(--foreground));
+  font-size: 14px;
+}
+.phone-input-wrapper .PhoneInputInput {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: hsl(var(--foreground));
+  font-size: 14px;
+}
+.phone-input-wrapper .PhoneInputInput::placeholder {
+  color: hsl(var(--muted-foreground));
+}
+.phone-input-wrapper .PhoneInputCountryIcon {
+  width: 20px;
+  height: 15px;
+}
