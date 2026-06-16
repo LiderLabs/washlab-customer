@@ -7,13 +7,13 @@ import { AuthProvider } from "@/providers/auth-provider"
 import { OrderProvider } from "@/context/OrderContext"
 
 export const metadata: Metadata = {
-  title: "WashLab - Campus Laundry Made Easy",
-  description: "Wash. Dry. Fold. Done. Professional laundry service for campus life.",
+  title: "Rapid Wash - Location Laundry Made Easy",
+  description: "Wash. Dry. Fold. Done. Professional laundry service for location life.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "WashLab",
+    title: "Rapid Wash",
   },
 }
 

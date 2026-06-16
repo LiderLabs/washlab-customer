@@ -156,7 +156,7 @@ export default function CompleteProfilePage() {
           </div>
           <CardTitle className="text-2xl">Complete Your Profile</CardTitle>
           <CardDescription>
-            Just one more step to start using WashLab
+            Just one more step to start using Rapid Wash
           </CardDescription>
         </CardHeader>
         <CardContent>

@@ -72,7 +72,6 @@ export default function Home() {
           <div className="max-w-2xl text-center lg:text-left flex flex-col gap-6">
             <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-extrabold mb-4 leading-tight tracking-tight">
               <span className="block mb-2 text-white">Laundry made easy</span>
-              <span className="block bg-gradient-to-r from-blue-400 via-primary to-purple-400 bg-clip-text text-transparent">for campus life.</span>
             </h1>
 
             <p className="text-white/90 text-lg md:text-xl lg:text-2xl mb-6 leading-relaxed font-medium">
@@ -114,7 +113,7 @@ export default function Home() {
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-purple-600 border-2 border-white flex items-center justify-center text-white text-xs font-bold">EM</div>
                   <div className="w-8 h-8 rounded-full bg-gradient-to-br from-pink-400 to-pink-600 border-2 border-white flex items-center justify-center text-white text-xs font-bold">JO</div>
                 </div>
-                <span className="text-white text-sm font-semibold">5,000+ Students</span>
+                <span className="text-white text-sm font-semibold">5,000+ Customers</span>
               </div>
               <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-4 py-2 rounded-full border border-white/20">
                 {[...Array(5)].map((_, i) => (
@@ -134,7 +133,7 @@ export default function Home() {
         </div>
 
         {/* Logo Marquee */}
-        <div className="absolute bottom-6 md:bottom-8 w-full z-20 overflow-hidden bg-white/5 backdrop-blur-md py-4">
+        <div className="absolute bottom-6 hidden md:bottom-8 w-full z-20 overflow-hidden bg-white/5 backdrop-blur-md py-4">
           <div className="flex gap-6 md:gap-8 whitespace-nowrap animate-marquee px-4">
             {SCHOOL_LOGOS.concat(SCHOOL_LOGOS).map((logo, idx) => (
               <div
@@ -184,8 +183,8 @@ export default function Home() {
                 {
                   image: '/assets/picture 2.jpeg',
                   title: 'Drop Off Your Laundry',
-                  desc: 'Head to WashLab with your laundry basket',
-                  detail: 'Visit any of our campus locations during operating hours',
+                  desc: 'Head to Rapid Wash with your laundry basket',
+                  detail: 'Visit any of our locations during operating hours',
                   time: '5 minutes',
                 },
                 {
@@ -280,7 +279,7 @@ export default function Home() {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">
               Our Locations
             </h2>
-            <p className="text-muted-foreground text-sm sm:text-base">Find us on your campus</p>
+            <p className="text-muted-foreground text-sm sm:text-base">Find us near you</p>
           </div>
 
           {/* Locations Slideshow */}
@@ -318,7 +317,7 @@ export default function Home() {
                   isOpen: true 
                 },
                 { 
-                  name: 'Coming to Your Campus Soon', 
+                  name: 'Coming to Your Area Soon', 
                   location: 'Stay tuned!', 
                   image: '/assets/pentagon-hostel-scaled-1.jpg',
                   isOpen: false, 
@@ -356,7 +355,7 @@ export default function Home() {
                   isOpen: true 
                 },
                 { 
-                  name: 'Coming to Your Campus Soon', 
+                  name: 'Coming to Your Area Soon', 
                   location: 'Stay tuned!', 
                   image: '/assets/pentagon-hostel-scaled-1.jpg',
                   isOpen: false, 
@@ -424,7 +423,7 @@ export default function Home() {
             </h2>
             
             <p className="text-base sm:text-lg text-white/90 mb-6 max-w-xl mx-auto leading-relaxed">
-              Join thousands of students who&apos;ve made the switch to hassle-free laundry.
+              Join thousands of customers who&apos;ve made the switch to hassle-free laundry.
             </p>
 
             <Link href="/order">
@@ -451,7 +450,7 @@ export default function Home() {
               <Link href="/dashboard" className="hover:text-primary transition-colors">Account</Link>
             </nav>
            <p className="text-xs text-muted-foreground">
-  © {new Date().getFullYear()} WashLab · Powered by Lider Technologies LTD
+  © {new Date().getFullYear()} Rapid Wash · Powered by Lider Technologies LTD
 </p>
           </div>
         </div>
