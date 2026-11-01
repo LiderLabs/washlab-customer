@@ -2,11 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { Check, Clock, MapPin, CreditCard, Bell, Truck } from 'lucide-react';
+import { SubscriptionFlyerSlide, useSubscriptionFlyer } from '@/components/SubscriptionFlyerSlide';
 
 interface Slide {
   title: string;
   content: React.ReactNode;
   bgClass: string;
+  /** flyer-style slide: starts right under the notch instead of the usual padding */
+  flush?: boolean;
+  /** how long to stay on this slide (ms), default 3000 */
+  hold?: number;
 }
 
 const slides: Slide[] = [
@@ -165,17 +170,43 @@ const slides: Slide[] = [
 ];
 
 export const PhoneSlideshow = () => {
+  const flyer = useSubscriptionFlyer();
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [paused, setPaused] = useState(false);
+
+  // Subscription flyer goes first (only once an admin has uploaded one)
+  const allSlides: Slide[] = flyer
+    ? [
+        {
+          title: 'Subscribe & Save',
+          bgClass: 'from-primary/20 to-primary/5',
+          flush: true,
+          hold: 7000,
+          content: <SubscriptionFlyerSlide flyer={flyer} />,
+        },
+        ...slides,
+      ]
+    : slides;
+  const safeIndex = Math.min(currentSlide, allSlides.length - 1);
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+    if (paused) return;
+    const delay = allSlides[safeIndex]?.hold ?? 3000;
+    const timer = setTimeout(() => setCurrentSlide((safeIndex + 1) % allSlides.length), delay);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paused, safeIndex, allSlides.length]);
 
   return (
-    <div className="relative">
+    <div
+      className="relative"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+      onTouchStart={() => {
+        setPaused(true);
+        setTimeout(() => setPaused(false), 10000);
+      }}
+    >
       {/* Phone Frame */}
       <div className="relative mx-auto w-[280px] h-[560px]">
         {/* Phone bezel */}
@@ -187,14 +218,14 @@ export const PhoneSlideshow = () => {
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-foreground rounded-b-2xl z-10" />
           
           {/* Screen content */}
-          <div className={`h-full pt-8 bg-gradient-to-b ${slides[currentSlide].bgClass} transition-colors duration-500`}>
-            {slides.map((slide, index) => (
+          <div className={`h-full pt-8 bg-gradient-to-b ${allSlides[safeIndex].bgClass} transition-colors duration-500`}>
+            {allSlides.map((slide, index) => (
               <div
                 key={index}
-                className={`absolute inset-0 pt-10 transition-all duration-500 ${
-                  index === currentSlide
+                className={`absolute inset-0 ${slide.flush ? 'pt-6' : 'pt-10'} transition-all duration-500 ${
+                  index === safeIndex
                     ? 'opacity-100 translate-x-0'
-                    : index < currentSlide
+                    : index < safeIndex
                     ? 'opacity-0 -translate-x-full'
                     : 'opacity-0 translate-x-full'
                 }`}
@@ -211,12 +242,12 @@ export const PhoneSlideshow = () => {
       
       {/* Slide indicators */}
       <div className="flex justify-center gap-2 mt-6">
-        {slides.map((_, index) => (
+        {allSlides.map((_, index) => (
           <button
             key={index}
             onClick={() => setCurrentSlide(index)}
             className={`h-2 rounded-full transition-all ${
-              index === currentSlide
+              index === safeIndex
                 ? 'w-8 bg-primary'
                 : 'w-2 bg-primary/30 hover:bg-primary/50'
             }`}
@@ -226,7 +257,7 @@ export const PhoneSlideshow = () => {
       
       {/* Slide title */}
       <p className="text-center text-sm text-muted-foreground mt-4">
-        {slides[currentSlide].title}
+        {allSlides[safeIndex].title}
       </p>
     </div>
   );

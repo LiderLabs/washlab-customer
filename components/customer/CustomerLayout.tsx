@@ -37,6 +37,7 @@ import {
   AlertCircle,
   CreditCard,
   Award,
+  Repeat,
 } from 'lucide-react';
 import Image from 'next/image';
 import { useTheme } from 'next-themes';
@@ -61,6 +62,7 @@ const navItems = [
   { href: '/dashboard/orders', label: 'My Orders', icon: Package },
   { href: '/dashboard/payments', label: 'Payments', icon: CreditCard },
   { href: '/dashboard/loyalty', label: 'Loyalty Points', icon: Award },
+  { href: '/dashboard/subscriptions', label: 'Subscriptions', icon: Repeat },
   { href: '/dashboard/notifications', label: 'Notifications', icon: Bell },
 ];
 
