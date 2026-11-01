@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useQuery, useConvexAuth } from 'convex/react';
-import { api } from '@liderlabs/washlab-backend/api';
+import { api } from '@jordan6699/washlab-backend/api';
 import { Loader2, ChevronDown } from 'lucide-react';
 
 const dt = (ms?: number) =>
