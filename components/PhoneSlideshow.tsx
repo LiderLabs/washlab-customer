@@ -181,8 +181,8 @@ export const PhoneSlideshow = () => {
           title: 'Subscribe & Save',
           bgClass: 'from-primary/20 to-primary/5',
           flush: true,
-          hold: 7000,
-          content: <SubscriptionFlyerSlide flyer={flyer} />,
+          hold: Math.max(7000, flyer.length * 4000),
+          content: <SubscriptionFlyerSlide flyer={flyer} active={currentSlide === 0} />,
         },
         ...slides,
       ]
