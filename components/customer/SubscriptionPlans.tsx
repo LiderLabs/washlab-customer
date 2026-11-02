@@ -149,10 +149,23 @@ export default function SubscriptionPlans({ id, heading = 'Choose your package' 
           confirmPayment(init.reference);
         },
         onClose: function () {
-          if (!confirmedRef.current) {
-            setStage('form');
-            toast.info('Payment window closed. You have not been charged.');
-          }
+          if (confirmedRef.current) return;
+          // The window can close because the network dropped AFTER the customer approved on their phone.
+          // Never claim "not charged". Check once; the webhook / recovery job will also activate it.
+          setStage('form');
+          const ref = init.reference;
+          (isMember ? memberVerify : guestVerify)({ reference: ref })
+            .then((res: any) => {
+              if (res?.status === 'active') {
+                doneRef.current = true;
+                setStage('done');
+              } else {
+                toast.info('Payment window closed. If you already approved the payment, your subscription will appear automatically.');
+              }
+            })
+            .catch(() => {
+              toast.info('Payment window closed. If you already approved the payment, your subscription will appear automatically.');
+            });
         },
       });
       handler.openIframe();
@@ -262,8 +275,8 @@ export default function SubscriptionPlans({ id, heading = 'Choose your package' 
             <div className="text-center space-y-3 py-6">
               <DialogTitle>We&apos;re still confirming your payment</DialogTitle>
               <DialogDescription>
-                If you were charged, your subscription will activate shortly. Keep this reference and contact support
-                if it doesn&apos;t appear within a few minutes:
+                If you were charged, your subscription activates automatically, even if your connection dropped. This
+                screen updates by itself. If it doesn&apos;t appear within 10 minutes, contact support with this reference:
               </DialogDescription>
               <p className="font-mono text-xs break-all bg-muted rounded-lg p-2">{reference}</p>
               <Button variant="outline" onClick={() => { doneRef.current = false; if (reference) confirmPayment(reference); }}>
