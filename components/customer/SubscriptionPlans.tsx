@@ -45,6 +45,16 @@ export default function SubscriptionPlans({ id, heading = 'Choose your package',
 
   const branches: any[] = (useQuery((api as any).branches.getActive, {}) ?? []) as any[];
   const [branchId, setBranchId] = useState('');
+  // signed-in customers already chose a campus at signup: preselect it (they can still change it)
+  const profile: any = useQuery((api as any).customers.getProfile, isMember ? {} : 'skip');
+  const savedCampus = profile?.preferredBranchId ?? profile?.branchId;
+  const campusAutoSet = useRef(false);
+  useEffect(() => {
+    if (campusAutoSet.current || !isMember || !savedCampus) return;
+    if (!branches.some((b: any) => b._id === savedCampus)) return;
+    campusAutoSet.current = true;
+    setBranchId(savedCampus);
+  }, [isMember, savedCampus, branches]);
   const plans: any[] | undefined = useQuery(
     (api as any).subscriptions.listAvailablePlans,
     branchId ? { branchId: branchId as any } : {}
@@ -218,7 +228,7 @@ export default function SubscriptionPlans({ id, heading = 'Choose your package',
               ))}
             </select>
             <p className="text-xs text-muted-foreground mt-2">
-              {branchId ? 'Showing packages for ' + (campusName ?? 'your campus') + '.' : 'Pick your campus to see the packages available there.'}
+              {branchId ? (isMember && branchId === savedCampus ? 'Showing packages for ' + (campusName ?? 'your campus') + ' (your campus). You can change it above.' : 'Showing packages for ' + (campusName ?? 'your campus') + '.') : 'Pick your campus to see the packages available there.'}
             </p>
           </div>
         </div>
