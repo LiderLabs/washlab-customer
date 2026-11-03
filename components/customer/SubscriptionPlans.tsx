@@ -283,7 +283,7 @@ export default function SubscriptionPlans({ id, heading = 'Choose your package',
         </div>
       </div>
 
-      <Dialog open={!!plan} onOpenChange={(o) => !o && close()}>
+      <Dialog open={!!plan && stage !== 'paying'} onOpenChange={(o) => !o && close()}>
         <DialogContent className="max-w-md">
           {stage === 'done' && status ? (
             <div className="text-center space-y-4 py-2">
