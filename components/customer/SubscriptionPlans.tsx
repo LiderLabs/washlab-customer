@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import type { ReactNode } from 'react';
 import { Check, CheckCircle2, Copy, Loader2, Repeat, ShieldCheck } from 'lucide-react';
 
 const PAYSTACK_SRC = 'https://js.paystack.co/v1/inline.js';
@@ -37,7 +38,7 @@ const money = (n: number) => `GHS ${n.toLocaleString(undefined, { maximumFractio
 
 type Stage = 'form' | 'creating' | 'paying' | 'confirming' | 'done' | 'error';
 
-export default function SubscriptionPlans({ id, heading = 'Choose your package' }: { id?: string; heading?: string }) {
+export default function SubscriptionPlans({ id, heading = 'Choose your package', promo }: { id?: string; heading?: string; promo?: ReactNode }) {
   const { isAuthenticated } = useConvexAuth();
   const { convexUser } = useCurrentCustomer() as any;
   const isMember = isAuthenticated && !!convexUser;
@@ -182,56 +183,95 @@ export default function SubscriptionPlans({ id, heading = 'Choose your package' 
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const couponsRef = useRef<HTMLDivElement>(null);
+  const campusName = branches.find((b: any) => b._id === branchId)?.name as string | undefined;
+  const perWash = (p: any) => (p.loadsIncluded > 0 ? p.price / p.loadsIncluded : p.price);
+  const pickCampus = (value: string) => {
+    setBranchId(value);
+    if (value && typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setTimeout(() => couponsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 120);
+    }
+  };
+
   return (
-    <div id={id} className="space-y-5 scroll-mt-24">
-      <div>
-        <h2 className="text-2xl font-bold text-foreground">{heading}</h2>
-        <p className="text-sm text-muted-foreground mt-1">Each wash is a full load: washing and drying included.</p>
-      </div>
+    <div id={id} className="scroll-mt-24">
+      <style>{'@keyframes wl-pop{0%,100%{transform:scale(1);box-shadow:0 0 0 0 hsl(var(--primary) / 0.5)}50%{transform:scale(1.04);box-shadow:0 0 0 10px hsl(var(--primary) / 0)}}.wl-pop{animation:wl-pop 1.8s ease-in-out infinite}@media (prefers-reduced-motion:reduce){.wl-pop{animation:none}}'}</style>
 
-      <div className="max-w-xs">
-        <Label>Your campus</Label>
-        <select
-          value={branchId}
-          onChange={(e) => setBranchId(e.target.value)}
-          className="mt-1 w-full px-3 py-2 rounded-lg border border-border bg-background text-sm"
-        >
-          <option value="">Select campus…</option>
-          {branches.map((b: any) => (
-            <option key={b._id} value={b._id}>{b.name}</option>
-          ))}
-        </select>
-      </div>
-
-      {plans === undefined ? (
-        <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
-      ) : plans.length === 0 ? (
-        <div className="text-center py-12 text-muted-foreground">
-          <Repeat className="w-10 h-10 mx-auto mb-3 opacity-30" />
-          <p className="text-sm">No packages available for this campus yet.</p>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-14 items-start">
+        {/* LEFT: campus selection */}
+        <div className="space-y-6 lg:sticky lg:top-44">
+          <div>
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-foreground">{heading}</h2>
+            <p className="text-sm text-muted-foreground mt-2">Each wash is a full load: washing and drying included.</p>
+          </div>
+          <div>
+            <Label htmlFor="wl-campus" className="text-base">Your campus</Label>
+            <select
+              id="wl-campus"
+              value={branchId}
+              onChange={(e) => pickCampus(e.target.value)}
+              className="mt-2 w-full h-12 px-4 rounded-xl border-2 border-border bg-background text-base focus:outline-none focus:border-primary"
+            >
+              <option value="">Select campus...</option>
+              {branches.map((b: any) => (
+                <option key={b._id} value={b._id}>{b.name}</option>
+              ))}
+            </select>
+            <p className="text-xs text-muted-foreground mt-2">
+              {branchId ? 'Showing packages for ' + (campusName ?? 'your campus') + '.' : 'Pick your campus to see the packages available there.'}
+            </p>
+          </div>
         </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {plans.map((p: any) => (
-            <div key={p._id} className="rounded-2xl border-2 border-border bg-card p-5 flex flex-col">
-              <h3 className="font-bold text-lg text-foreground">{p.name}</h3>
-              {p.description && <p className="text-sm text-muted-foreground mt-1">{p.description}</p>}
-              <p className="text-3xl font-extrabold text-primary mt-3">{money(p.price)}</p>
-              <ul className="mt-3 space-y-1.5 text-sm text-foreground flex-1">
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-600" /> {p.loadsIncluded} full washes</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-600" /> Washing and drying included</li>
-                <li className="flex items-center gap-2"><Check className="w-4 h-4 text-green-600" /> Valid for {p.validityDays} days</li>
-                <li className="flex items-center gap-2 text-muted-foreground">
-                  <span className="w-4" /> {money(p.price / p.loadsIncluded)} per wash
-                </li>
-              </ul>
-              <Button className="mt-4 w-full h-11" onClick={() => { setPlan(p); setStage('form'); }}>
-                Buy now
-              </Button>
+
+        {/* RIGHT: promo images until a campus is chosen, then the coupons */}
+        <div ref={couponsRef} className="scroll-mt-24 min-w-0">
+          {!branchId ? (
+            promo ?? (
+              <div className="rounded-3xl border-2 border-dashed border-border p-10 text-center text-muted-foreground">
+                <Repeat className="w-10 h-10 mx-auto mb-3 opacity-40" />
+                <p className="text-sm">Select your campus to see the packages.</p>
+              </div>
+            )
+          ) : plans === undefined ? (
+            <div className="flex justify-center py-12"><Loader2 className="w-6 h-6 animate-spin text-primary" /></div>
+          ) : plans.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <Repeat className="w-10 h-10 mx-auto mb-3 opacity-30" />
+              <p className="text-sm">No packages available for {campusName ?? 'this campus'} yet.</p>
             </div>
-          ))}
+          ) : (
+            <div className="space-y-5">
+              {plans.map((p: any) => (
+                <div key={p._id} className="wl-coupon relative flex rounded-2xl border-2 border-dashed border-primary/40 bg-card shadow-sm">
+                  <div className="bg-primary text-primary-foreground rounded-l-[14px] flex flex-col items-center justify-center px-3 py-5 w-28 sm:w-36 shrink-0 text-center">
+                    <span className="text-[11px] font-semibold uppercase tracking-widest opacity-80">GHS</span>
+                    <span className="text-3xl sm:text-4xl font-extrabold leading-none mt-1">
+                      {Number(p.price).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                    </span>
+                    <span className="text-[11px] mt-2 opacity-80">{money(perWash(p))} / wash</span>
+                  </div>
+                  <div className="relative w-0 border-l-2 border-dashed border-primary/40">
+                    <span className="absolute -top-3 -left-3 w-6 h-6 rounded-full bg-background" />
+                    <span className="absolute -bottom-3 -left-3 w-6 h-6 rounded-full bg-background" />
+                  </div>
+                  <div className="flex-1 min-w-0 p-4 sm:p-5 flex flex-col">
+                    <h3 className="font-extrabold text-lg text-foreground leading-tight">{p.name}</h3>
+                    {p.description && <p className="text-sm text-muted-foreground mt-1">{p.description}</p>}
+                    <div className="flex flex-wrap gap-2 mt-3">
+                      <span className="rounded-full bg-primary/10 text-primary text-xs font-semibold px-3 py-1">{p.loadsIncluded} full washes</span>
+                      <span className="rounded-full bg-primary/10 text-primary text-xs font-semibold px-3 py-1">Valid {p.validityDays} days</span>
+                      <span className="rounded-full bg-primary/10 text-primary text-xs font-semibold px-3 py-1">Wash + dry</span>
+                    </div>
+                    <Button className="wl-pop mt-4 w-full h-11 font-bold" onClick={() => { setPlan(p); setStage('form'); }}>
+                      Buy now
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
-      )}
+      </div>
 
       <Dialog open={!!plan} onOpenChange={(o) => !o && close()}>
         <DialogContent className="max-w-md">

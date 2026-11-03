@@ -28,6 +28,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { FileText } from 'lucide-react';
 import { OrderStatus } from '@/types';
+import PromoBanner from '@/components/customer/PromoBanner';
 
 export default function DashboardPage() {
   const { clerkUser, convexUser } = useCurrentCustomer();
@@ -92,6 +93,9 @@ export default function DashboardPage() {
             Here&apos;s what&apos;s happening with your laundry
           </p>
         </div>
+
+        {/* Promo (hidden when no promo images) */}
+        <PromoBanner />
 
         {/* Stats Grid */}
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
