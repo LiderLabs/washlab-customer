@@ -8,6 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Copy, Loader2, Repeat, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import SubscriptionPlans from './SubscriptionPlans';
+import { OwnedVoucher } from '@/components/VoucherCard';
 
 const STATUS_STYLES: Record<string, string> = {
   active: 'bg-green-100 text-green-700',
@@ -65,40 +66,17 @@ export default function CustomerSubscriptions() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {mine.map((s: any) => {
-              const pct = s.loadsTotal ? Math.round((s.loadsRemaining / s.loadsTotal) * 100) : 0;
               return (
-                <Card key={s._id}>
-                  <CardContent className="p-5 space-y-3">
-                    <div className="flex items-start justify-between gap-2">
-                      <div>
-                        <p className="font-semibold">{s.planName}</p>
-                        <button
-                          className="mt-1 inline-flex items-center gap-1.5 font-mono text-xs bg-muted px-2 py-1 rounded"
-                          onClick={() => { navigator.clipboard?.writeText(s.code); toast.success('Code copied!'); }}
-                        >
-                          {s.code} <Copy className="w-3 h-3 text-muted-foreground" />
-                        </button>
-                      </div>
-                      <span className={`text-xs px-2 py-1 rounded-full ${STATUS_STYLES[s.status] ?? 'bg-gray-100 text-gray-700'}`}>
-                        {s.status}
-                      </span>
-                    </div>
-                    <div>
-                      <div className="flex items-baseline justify-between mb-1">
-                        <span className="text-sm text-muted-foreground">Washes left</span>
-                        <span className="text-sm"><span className="text-2xl font-bold">{s.loadsRemaining}</span> / {s.loadsTotal}</span>
-                      </div>
-                      <div className="h-2 bg-muted rounded-full overflow-hidden">
-                        <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${pct}%` }} />
-                      </div>
-                    </div>
-                    {s.expiresAt && (
-                      <p className="text-xs text-muted-foreground">
-                        {s.status === 'expired' ? 'Expired' : 'Valid until'} {format(new Date(s.expiresAt), 'MMM d, yyyy')}
-                      </p>
-                    )}
-                  </CardContent>
-                </Card>
+                <div key={s._id} className="space-y-2">
+                  <OwnedVoucher sub={s} />
+                  <button
+                    type="button"
+                    className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground"
+                    onClick={() => { navigator.clipboard?.writeText(s.code); toast.success('Code copied!'); }}
+                  >
+                    <Copy className="w-3 h-3" /> Copy code {s.code}
+                  </button>
+                </div>
               );
             })}
           </div>

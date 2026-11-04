@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
+import { PlanVoucher } from '@/components/VoucherCard';
 import type { ReactNode } from 'react';
 import { Check, CheckCircle2, Copy, Loader2, Repeat, ShieldCheck } from 'lucide-react';
 
@@ -252,30 +253,11 @@ export default function SubscriptionPlans({ id, heading = 'Choose your package',
           ) : (
             <div className="space-y-5">
               {plans.map((p: any) => (
-                <div key={p._id} className="wl-coupon relative flex rounded-2xl border-2 border-dashed border-primary/40 bg-card shadow-sm">
-                  <div className="bg-primary text-primary-foreground rounded-l-[14px] flex flex-col items-center justify-center px-3 py-5 w-28 sm:w-36 shrink-0 text-center">
-                    <span className="text-[11px] font-semibold uppercase tracking-widest opacity-80">GHS</span>
-                    <span className="text-3xl sm:text-4xl font-extrabold leading-none mt-1">
-                      {Number(p.price).toLocaleString(undefined, { maximumFractionDigits: 2 })}
-                    </span>
-                    <span className="text-[11px] mt-2 opacity-80">{money(perWash(p))} / wash</span>
-                  </div>
-                  <div className="relative w-0 border-l-2 border-dashed border-primary/40">
-                    <span className="absolute -top-3 -left-3 w-6 h-6 rounded-full bg-background" />
-                    <span className="absolute -bottom-3 -left-3 w-6 h-6 rounded-full bg-background" />
-                  </div>
-                  <div className="flex-1 min-w-0 p-4 sm:p-5 flex flex-col">
-                    <h3 className="font-extrabold text-lg text-foreground leading-tight">{p.name}</h3>
-                    {p.description && <p className="text-sm text-muted-foreground mt-1">{p.description}</p>}
-                    <div className="flex flex-wrap gap-2 mt-3">
-                      <span className="rounded-full bg-primary/10 text-primary text-xs font-semibold px-3 py-1">{p.loadsIncluded} full washes</span>
-                      <span className="rounded-full bg-primary/10 text-primary text-xs font-semibold px-3 py-1">Valid {p.validityDays} days</span>
-                      <span className="rounded-full bg-primary/10 text-primary text-xs font-semibold px-3 py-1">Wash + dry</span>
-                    </div>
-                    <Button className="wl-pop mt-4 w-full h-11 font-bold" onClick={() => { setPlan(p); setStage('form'); }}>
-                      Buy now
-                    </Button>
-                  </div>
+                <div key={p._id} className="wl-coupon space-y-3">
+                  <PlanVoucher plan={p} />
+                  <Button className="wl-pop w-full h-12 font-bold" onClick={() => { setPlan(p); setStage('form'); }}>
+                    Buy now
+                  </Button>
                 </div>
               ))}
             </div>
