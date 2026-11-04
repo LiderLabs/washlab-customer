@@ -31,12 +31,12 @@ const FONT_CSS = `
 .wlv-pr{display:flex;align-items:center;gap:2.2cqw;margin-top:.4cqw}
 .wlv-am{line-height:1.05;white-space:nowrap}
 .wlv-st{display:flex;flex-direction:column;font-size:3.6cqw;line-height:1.15;text-transform:uppercase;white-space:nowrap}
-.wlv-ft{font-family:system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:1.45cqw;letter-spacing:.18em;font-weight:700;margin-top:1.4cqw;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wlv-ft{font-family:system-ui,-apple-system,'Segoe UI',Arial,sans-serif;font-size:2.5cqw;letter-spacing:.1em;font-weight:700;margin-top:1.4cqw;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .wlv-r{background:var(--wlv-panel);color:#fff;border-radius:0 5cqw 5cqw 0;padding:3.6cqw 3cqw 4cqw;display:flex;flex-direction:column;align-items:center;justify-content:space-between;text-align:center}
 .wlv-vt{font-size:4.1cqw;line-height:1.08;letter-spacing:.02em;text-transform:uppercase}
 .wlv-bc{width:78%}
 .wlv-bc svg{display:block;width:100%;height:auto}
-.wlv-cd{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:1.9cqw;letter-spacing:.18em;margin-top:.7cqw}
+.wlv-cd{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:2.5cqw;letter-spacing:.14em;margin-top:.7cqw}
 .wlv-badge{position:absolute;left:2cqw;top:2cqw;background:#0a0a0a;color:#fff;font-size:3cqw;padding:.2cqw 1.6cqw;border-radius:1cqw;letter-spacing:.06em;text-transform:uppercase;z-index:2}
 `;
 
@@ -169,9 +169,7 @@ export function OwnedVoucher({ sub, titleMode = 'plan', className }: { sub: any;
   const used = sub.loadsUsed ?? Math.max(0, (sub.loadsTotal ?? 0) - (sub.loadsRemaining ?? 0));
   const title = titleMode === 'customer' ? (sub.customerName || 'Customer') : voucherHeadline({ name: sub.planName, headline: sub.headline, template: sub.template });
   const subtitle = titleMode === 'customer' ? sub.planName : 'Wash more, pay less';
-  const footer = titleMode === 'customer'
-    ? [sub.phoneNumber, used + ' used'].filter(Boolean).join('  |  ')
-    : used + ' used';
+  const footer = used + ' used';
   return (
     <VoucherCard
       className={className}
